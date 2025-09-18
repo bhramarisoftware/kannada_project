@@ -1,0 +1,215 @@
+.members-header{
+  display: flex;
+  margin-top: 0px;
+  width: 1400px;
+  height: 79px;
+  flex-direction: row;
+  color: rgb(85, 79, 250);
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: 600;
+  margin-left: 30px;
+}
+
+.members-header-icon1{
+   margin-left: 500px;
+   margin-top: 15px;
+   width: 39px;
+   height: 39px;
+   color: rgb(1, 1, 11);
+   cursor: pointer;
+}
+
+.members-header-icon2{
+  margin-left: 15px;
+   margin-top: 15px;
+  width: 39px;
+  height: 39px;
+  color: rgb(1, 1, 11);
+  cursor: pointer;
+}
+
+.members-header-icon3{
+  margin-left: 15px;
+   margin-top: 15px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+}
+/* Base layout */
+.members-form-card {
+  width: 1340px;
+  height: 931px;
+  background-color: #ececed;
+  align-items: center;
+}
+
+/* Back button */
+.members-back-btn {
+  margin-bottom: 20px;
+  font-size: 16px;
+  color: #222B45;
+  cursor: pointer;
+}
+.members-back-btn span {
+  font-size: 20px;
+  margin-right: 6px;
+}
+
+/* Header */
+.members-form-header {
+  font-size: 15px;
+  color: #222B45;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  align-items: baseline;
+}
+.members-edit-btn {
+  background: none;
+  border: none;
+  color: #FF4A00;
+  cursor: pointer;
+}
+
+/* Form rows */
+.members-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+  margin-top: 10px;
+}
+.members-row input {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* Toggle buttons */
+.members-toggle-membership,
+.members-toggle-status {
+  display: flex;
+  gap:0px;
+}
+.members-toggle-membership button,
+.members-toggle-status button {
+  padding: 8px 16px;
+  border: 1px solid #060606;
+  background-color: #fff;
+  color: #0e0e0e;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.members-toggle-membership button.active,
+.members-toggle-status button.active {
+  background-color: #FF4A00;
+  color: #fff;
+}
+
+/* Section header */
+.members-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 30px 0 10px;
+}
+.members-section-header h3 {
+  font-size: 20px;
+  color: #444;
+}
+.members-add-btn {
+  color: #072E77;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Payment rows */
+.members-payment-row1 input,
+.members-payment-row2 input {
+  flex: 1;
+  min-width: 200px;
+}
+
+/* Entries list */
+.members-entries-list {
+  background-color: #f1f1f1;
+  padding: 15px;
+  border-radius: 8px;
+}
+.members-entries-list h4 {
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+.members-entries-list ul {
+  list-style: none;
+  padding-left: 0;
+}
+.members-entries-list li {
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+
+/* Error message */
+.members-error-text {
+  color: #FF4A00;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 10px;
+}
+
+/* Action buttons */
+.members-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+.members-cancel-btn,
+.members-save-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.members-cancel-btn {
+  color: #072E77;
+}
+.members-save-btn {
+  background-color: #FF4A00;
+  color: #FFFFFF;
+}
+.members-form-card {
+  width: 1340px;
+  height: 931px;
+  background-color: #FFFFFF;
+  align-items: center;
+
+}
+.members-input-date{
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 15px;
+  width: 150px;
+  height: 20px;
+  margin-left: 700px;
+  display: flex;
+  align-items: end;
+  cursor: pointer;
+}
+.members-input-enddate{
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 15px;
+  width: 150px;
+  height: 20px;
+  margin-left: 10px;
+  cursor: pointer;
+}
