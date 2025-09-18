@@ -164,7 +164,7 @@ function SalesTable() {
       {/* Controls */}
       <Grid container spacing={2} alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
         <Grid item>
-          <Button onClick={() => navigate(-1)}>  {/* ✅ Back works now */}
+          <Button style={{marginLeft:23}} color="black" onClick={() => navigate(-1)}>  {/* ✅ Back works now */}
             ← Back
           </Button>
         </Grid>
@@ -177,30 +177,17 @@ function SalesTable() {
       </Grid>
 
       <Box sx={{ p: 3 }}>
-
-
-        {/* Controls in a single flex line */}
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            mb: 2,
-            flexWrap: 'nowrap',
-            width: '100%',
-            overflowX: 'auto',
-          }}
-        >
-
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%', marginBottom: 2 }}>
           {/* Header */}
-          <Typography variant="h6" gutterBottom>
+          <div>
             <strong>ಪುಸ್ತಕ ಮಾರಾಟ ಪಟ್ಟಿ</strong>
-          </Typography>
-          <Typography variant="body2" gutterBottom>
-            ಒಟ್ಟು ಪುಸ್ತಕ ಮಾರಾಟ ಸಂಖ್ಯೆ: {rows.length}
-          </Typography>
-          
+            <Typography sx={{ marginTop: 2, marginBottom: 2 }}>
+              ಒಟ್ಟು ಪುಸ್ತಕ ಮಾರಾಟ ಸಂಖ್ಯೆ: {rows.length}
+            </Typography>
+          </div>
+
           <TextField
+            style={{ marginLeft: 'auto' }}
             placeholder="Search..."
             variant="outlined"
             size="small"
@@ -248,8 +235,8 @@ function SalesTable() {
           />
         </Box>
       </Box>
-    </>
-  );
+      </>
+      );
 }
 
-export default SalesTable;
+      export default SalesTable;

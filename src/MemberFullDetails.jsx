@@ -71,7 +71,7 @@ const MemberFullDetails = () => {
         </Typography>
 
         {/* Details Grid */}
-        <Grid container spacing={3}>
+        <Grid container spacing={25}>
           <Grid item xs={12} sm={6} md={3}>
             <LabelValue label="ಸದಸ್ಯ ಸಂಖ್ಯೆ" value={data.formData?.memberNo || "—"} />
             <LabelValue label="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ" value={data.formData?.mobile || "—"} />

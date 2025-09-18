@@ -98,12 +98,17 @@ function DonationTable() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div onClick={() => navigate(-1)} style={{ cursor: 'pointer' }}>
-          <span>←</span> Back
-        </div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',gap:12 }}>
         <Button
-          style={{ backgroundColor: '#072E77', color: '#FFFFFF', marginRight: '100px' }}
+        style={{marginRight:50}}
+          variant="text"
+          onClick={() => navigate(-1)}
+          sx={{ textTransform: "none", color: "#000" }}
+        >
+          <span style={{ marginRight:25, }}>←Back</span> 
+        </Button>
+        <Button
+          style={{ backgroundColor: '#072E77', color: '#FFFFFF', marginRight: '30px' }}
           variant="contained"
           color="primary"
           onClick={() => navigate("/add-donation")}
@@ -123,7 +128,7 @@ function DonationTable() {
           </div>
 
           <TextField
-          style={{ marginLeft: 'auto' }}
+            style={{ marginLeft: 'auto' }}
             label="ಹುಡುಕಿ"
             variant="outlined"
             size="small"

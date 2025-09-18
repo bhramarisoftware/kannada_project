@@ -120,7 +120,7 @@ function Members() {
 
             {/* Basic details */}
             <div className="members-row members-row-2">
-              <TextField style={{ width: "320px" }} name="mobile" label="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ" value={formData.mobile || ""} onChange={(e) => setFormData({ ...formData, mobile: e.target.value.replace(/\D/g, "") })} size="small" />
+              <TextField style={{ width: "320px" }} name="mobile" label="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ" value={formData.mobile || ""} onChange={(e) => setFormData({ ...formData, mobile: e.target.value.replace(/\D/g, "") })} size="small" inputProps={{maxLength:10}} />
               <TextField style={{ width: "320px", marginLeft: "5px" }} label="ಹೆಸರು" name="name" value={formData.name || ""} onChange={handleChange} size="small" />
               <TextField style={{ width: "320px", marginLeft: "5px" }} label="Nickname" name="nickname" value={formData.nickname || ""} onChange={handleChange} size="small" />
               <TextField style={{ width: "320px", marginLeft: "5px" }} label="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ (ಬೇಕಾದಲ್ಲಿ)" name="altMobile" value={formData.altMobile || ""} onChange={handleChange} size="small" inputProps={{ maxLength: 10 }} />
