@@ -58,12 +58,13 @@ export default function MemberDetails() {
           sx={{
             backgroundColor: "green",
             color: "white",
-            px: 1.5,
-            py: 0.5,
+            px: 0.5,
+            py: 0.2,
             borderRadius: "8px",
             textAlign: "center",
             fontSize: "0.85rem",
             fontWeight: "bold",
+            
           }}
         >
           {params.value}

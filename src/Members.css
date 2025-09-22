@@ -41,6 +41,7 @@
   height: 931px;
   background-color: #ececed;
   align-items: center;
+  margin-left: 30px;
 }
 
 /* Back button */
@@ -212,4 +213,15 @@
   height: 20px;
   margin-left: 10px;
   cursor: pointer;
+}
+.members-add-btn:hover {
+  background-color: #072E77;
+  color: #fff;
+}
+.members-mandatory-note{
+  color: red;
+  font-size: 15px;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  margin-left: 5px;
 }

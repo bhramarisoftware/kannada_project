@@ -96,7 +96,7 @@ function AddDonation() {
       </div>
 
       {/* Back Button */}
-      <div className="members-back-btn" onClick={() => navigate("/DonationTable")}>
+      <div className="members-back-btn" onClick={() => navigate(-1)}>
         <span>←</span> Back
       </div>
 

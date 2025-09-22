@@ -12,6 +12,10 @@ import {
   Menu,
   Checkbox,
   ListItemText,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  DialogContent
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -22,6 +26,10 @@ function MemberDetails() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+
+  // Dialog state
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(null);
 
   // Dropdown state for "ಹೊಸ ಸಹಾಯ ಧನ +"
   const [anchorElDonation, setAnchorElDonation] = useState(null);
@@ -58,12 +66,13 @@ function MemberDetails() {
     { field: "id", headerName: "ಸದಸ್ಯ ಸಂಖ್ಯೆ", width: 130 },
     { field: "name", headerName: "ಶ್ರೀಮತಿ / ಶ್ರೀ", width: 150 },
     { field: "nickname", headerName: "Nick name", width: 150 },
-    { field: "Status", headerName: "ಸದಸ್ಯರ ನಮೂನೆ", width: 150 },
+    { field: "membershipType", headerName: "ಸದಸ್ಯರ ನಮೂನೆ", width: 150 },
     { field: "status", headerName: "ಸದಸ್ಯರ ಸ್ಥಿತಿ", width: 130 },
-    { field: "date", headerName: "ಸೇರಿಸಿದ ದಿನಾಂಕ", width: 150 },
+    { field: "date", headerName: "ನೊಂದಣಿ  ದಿನಾಂಕ", width: 150 },
     { field: "mobile", headerName: "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ", width: 150 },
-    { field: "payment", headerName: "ಪಾವತಿ ವಿವರ", width: 200 },
-    { field: "address", headerName: "ನಗರ", width: 200 },
+    { field: "amount", headerName: "ಮೊಬಲಾಗು ", width: 150 },
+    { field: "payment", headerName: "ನಗದು ವಿವರ", width: 200 },
+    // { field: "address", headerName: "ನಗರ", width: 200 },
     {
       field: "actions",
       headerName: "ಕ್ರಿಯೆಗಳು",
@@ -74,7 +83,8 @@ function MemberDetails() {
           size="small"
           onClick={(e) => {
             e.stopPropagation();
-            deleteMember(params.row.index);
+            setSelectedIndex(params.row.index);
+            setOpenDialog(true);
           }}
         >
           <DeleteIcon  />ಅಳಿಸಿ
@@ -90,13 +100,15 @@ function MemberDetails() {
   }, []);
 
   // Delete a member
-  const deleteMember = (index) => {
-    if (window.confirm("ಸದಸ್ಯನನ್ನು ಅಳಿಸಲು ಬಯಸುವಿರಾ?")) {
+  const deleteMember = () => {
+    if (selectedIndex !== null) {
       const updated = [...Members];
-      updated.splice(index, 1);
+      updated.splice(selectedIndex, 1);
       setMembers(updated);
       localStorage.setItem("membersList", JSON.stringify(updated));
     }
+    setOpenDialog(false);
+    setSelectedIndex(null);
   };
 
   // Filter + Search
@@ -117,13 +129,18 @@ function MemberDetails() {
     index: i,
     name: member.formData?.name || "",
     nickname: member.formData?.nickname || "",
+    membershipType:member.membershipType || "",
     status: member.status || "",
     date: member.formData?.date || "",
     mobile: member.formData?.mobile || "",
+    amount:(member.entries?.length || 0) > 0
+    ? member.entries.map((entry) => `₹${entry.payment}`).join(", ")
+    : "—",
     payment:
-      (member.entries?.length || 0) > 0
-        ? member.entries.map((entry) => `₹${entry.payment} | ${entry.paymentType}`).join(", ")
-        : "—",
+  (member.entries?.length || 0) > 0
+    ? member.entries.map((entry) => entry.paymentType).join(", ")
+    : "—",
+
     address: member.formData?.address || "",
   }));
 
@@ -317,8 +334,22 @@ function MemberDetails() {
           />
         </Box>
       </div>
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>ಇದನ್ನು ಅಳಿಸುವುದು ಖಚಿತವೇ?</DialogTitle>
+        <DialogContent>
+          <Typography>ಒಮ್ಮೆ ಅಳಿಸಿದ ನಂತರ ಅದನ್ನು ಶಾಶ್ವತವಾಗಿ ಅಳಿಸಲಾಗುತ್ತದೆ</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)} color="primary">
+            ಬೇಡ
+          </Button>
+          <Button onClick={deleteMember} color="error">
+            ಅಳಿಸು
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
-
 export default MemberDetails;
