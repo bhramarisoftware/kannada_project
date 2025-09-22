@@ -4,12 +4,17 @@ import {
   Box,
   Button,
   TextField,
+  Typography,
   MenuItem,
   IconButton,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useNavigate } from "react-router-dom";
+import { Margin } from "@mui/icons-material";
 
 export default function MemberDetails() {
+  const navigate = useNavigate();
+  // Sample data
   const [rows, setRows] = useState([
     {
       id: 1,
@@ -53,12 +58,13 @@ export default function MemberDetails() {
           sx={{
             backgroundColor: "green",
             color: "white",
-            px: 1.5,
-            py: 0.5,
+            px: 0.5,
+            py: 0.2,
             borderRadius: "8px",
             textAlign: "center",
             fontSize: "0.85rem",
             fontWeight: "bold",
+            
           }}
         >
           {params.value}
@@ -94,7 +100,7 @@ export default function MemberDetails() {
 
   return (
     <>
-       <div className="heder">
+      <div className="heder">
         <p>ಬ್ರಹ್ಮಶ್ರೀ ಮಿತ್ತೂರು ಪುರೋಹಿತ ತಿಮ್ಮಯ್ಯ ಭಟ್ಟ ಸಂಪ್ರತಿಷ್ಠಾನ (ರಿ.)</p>
         <div className="image1">
           <img src="./bell.png" alt="bell" />
@@ -107,78 +113,72 @@ export default function MemberDetails() {
         </div>
       </div>
 
-    <Box sx={{ p: 2 }}>
-      {/* Header */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          mb: 2,
-          alignItems: "center",
-        }}
-      >
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <TextField style={{ marginLeft: '610px' }} select label="ಪೂರ್ಣ ವರದಿ" size="small" sx={{ minWidth: 150 }}>
-            <MenuItem value="all">ಪೂರ್ಣ ವರದಿ</MenuItem>
-            <MenuItem value="active">ಆಜೀವ ಸದಸ್ಯರು</MenuItem>
-            <MenuItem value="inactive">ವಾರ್ಷಿಕ  ಸದಸ್ಯರು</MenuItem>
-            <MenuItem value="active">ಸಹಾಯ ಧನ </MenuItem>
-            <MenuItem value="inactive">ಪುಸ್ತಕ ಮಾರಾಟ</MenuItem>
-          </TextField>
+      <div onClick={() => navigate(-1)} style={{ cursor: 'pointer' }}>
+        <span style={{marginLeft:28}}>←Back</span> 
+      </div>
 
-          {/* <TextField
-            label="ಸೇರಿದ ದಿನಾಂಕ"
-            type="date"
-            size="small"
-            InputLabelProps={{ shrink: true }}
-          /> */}
-          <TextField
-            label="ಪ್ರಾರಂಭ ದಿನಾಂಕ"
-            type="date"
-            size="small"
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="ಕೊನೆಯ ದಿನಾಂಕ"
-            type="date"
-            size="small"
-            InputLabelProps={{ shrink: true }}
-          />
+      <Box sx={{ p: 3 }}>
+        {/* Header */}
+
+        <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between', marginBottom: 2 }}>
+          <div>
+            <strong>ಪುಸ್ತಕ ಮಾರಾಟ ಪಟ್ಟಿ</strong>
+            <Typography sx={{ marginTop: 2, marginBottom: 2 }}>
+              ಒಟ್ಟು ಪುಸ್ತಕ ಮಾರಾಟ ಸಂಖ್ಯೆ: {rows.length}
+            </Typography>
+          </div>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <TextField select label="ಪೂರ್ಣ ವರದಿ" size="small" sx={{ minWidth: 150, marginLeft: 2 }}>
+              <MenuItem value="all">ಪೂರ್ಣ ವರದಿ</MenuItem>
+              <MenuItem value="active">ಆಜೀವ ಸದಸ್ಯರು</MenuItem>
+              <MenuItem value="inactive">ವಾರ್ಷಿಕ  ಸದಸ್ಯರು</MenuItem>
+              <MenuItem value="active">ಸಹಾಯ ಧನ </MenuItem>
+              <MenuItem value="inactive">ಪುಸ್ತಕ ಮಾರಾಟ</MenuItem>
+            </TextField>
+            <TextField
+              label="ಪ್ರಾರಂಭ ದಿನಾಂಕ"
+              type="date"
+              size="small"
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="ಕೊನೆಯ ದಿನಾಂಕ"
+              type="date"
+              size="small"
+              InputLabelProps={{ shrink: true }}
+            />
+            <Button variant="contained" color="primary" style={{ backgroundColor: '#072E77' }}>
+              ವರದಿಯನ್ನು ರಚಿಸಿ
+            </Button>
+            <Button variant="outlined" color="success">
+              Excel Download
+            </Button>
+          </Box>
         </Box>
 
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <Button variant="contained" color="primary" style={{ backgroundColor: '#072E77' }}>
-            ವರದಿಯನ್ನು ರಚಿಸಿ
-          </Button>
-          <Button variant="outlined" color="success">
-            Excel Download
-          </Button>
+        {/* DataGrid */}
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          pageSize={10}
+          autoHeight
+          disableSelectionOnClick
+        />
+
+        {/* Footer Total */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            mt: 2,
+            fontWeight: "bold",
+          }}
+        >
+
+          ಒಟ್ಟು ಮೊತ್ತ: ₹{" "}
+          {rows.reduce((acc, row) => acc + row.amount, 0).toFixed(2)}
         </Box>
       </Box>
-
-      {/* DataGrid */}
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        pageSize={10}
-        autoHeight
-        disableSelectionOnClick
-      />
-
-      {/* Footer Total */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-          mt: 2,
-          fontWeight: "bold",
-        }}
-      >
-
-        ಒಟ್ಟು ಮೊತ್ತ: ₹{" "}
-        {rows.reduce((acc, row) => acc + row.amount, 0).toFixed(2)}
-      </Box>
-    </Box>
     </>
   );
 }

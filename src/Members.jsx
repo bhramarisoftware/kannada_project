@@ -6,6 +6,8 @@ import { TextField, Dialog, DialogTitle, DialogContent, DialogActions, Button, I
 import { Margin, WidthFullSharp } from "@mui/icons-material";
 import EditIcon from "@mui/icons-material/Edit";
 import { CgDisplayFullwidth } from "react-icons/cg";
+import { red } from "@mui/material/colors";
+import "./Members.css";
 
 function Members() {
   const navigate = useNavigate();
@@ -91,7 +93,7 @@ function Members() {
           className="members-back-btn"
           onClick={() => setOpenBackDialog(true)}
         >
-          <span>←</span> Back
+          <span style={{marginLeft:25}}>←Back</span> 
         </div>
 
         <div className="members-form-card">
@@ -120,8 +122,8 @@ function Members() {
 
             {/* Basic details */}
             <div className="members-row members-row-2">
-              <TextField style={{ width: "320px" }} name="mobile" label="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ" value={formData.mobile || ""} onChange={(e) => setFormData({ ...formData, mobile: e.target.value.replace(/\D/g, "") })} size="small" />
-              <TextField style={{ width: "320px", marginLeft: "5px" }} label="ಹೆಸರು" name="name" value={formData.name || ""} onChange={handleChange} size="small" />
+              <TextField required style={{ width: "320px" }} name="mobile" label="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ" value={formData.mobile || ""} onChange={(e) => setFormData({ ...formData, mobile: e.target.value.replace(/\D/g, "") })} size="small" inputProps={{maxLength:10}} />
+              <TextField required style={{ width: "320px", marginLeft: "5px" }} label="ಹೆಸರು" name="name" value={formData.name || ""} onChange={handleChange} size="small" />
               <TextField style={{ width: "320px", marginLeft: "5px" }} label="Nickname" name="nickname" value={formData.nickname || ""} onChange={handleChange} size="small" />
               <TextField style={{ width: "320px", marginLeft: "5px" }} label="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ (ಬೇಕಾದಲ್ಲಿ)" name="altMobile" value={formData.altMobile || ""} onChange={handleChange} size="small" inputProps={{ maxLength: 10 }} />
             </div>
@@ -155,7 +157,7 @@ function Members() {
             {entries.map((entry, index) => (
               <div key={index} className="members-payment-block">
                 <div className="members-row members-payment-row1">
-                  <TextField label="ಮೊತ್ತ" value={entry.payment} onChange={(e) => { const updated = [...entries]; updated[index].payment = e.target.value; setEntries(updated); }} size="small"
+                  <TextField label="ಮೊಬಲಾಗು " value={entry.payment} onChange={(e) => { const updated = [...entries]; updated[index].payment = e.target.value; setEntries(updated); }} size="small"
                     style={{ marginLeft: "5px", width: "350px" }} />
                   <TextField style={{ width: "350px", marginLeft: "5px" }} label="ಹಣ ಸ್ವೀಕರಿಸುವ ಪ್ರಕಾರ"
                     select
@@ -165,22 +167,33 @@ function Members() {
                   >
                     <MenuItem value="Cash">ನಗದು</MenuItem>
                     <MenuItem value="Online">Online </MenuItem>
-                    <MenuItem value="Bank1">ಕರ್ನಾಟಕ ಬ್ಯಾಂಕ್ -  8164</MenuItem>
-                    <MenuItem value="Bank2">ಕರ್ನಾಟಕ ಬ್ಯಾಂಕ್ -  2345</MenuItem>
-                    <MenuItem value="Bank3">ಕರ್ನಾಟಕ ಬ್ಯಾಂಕ್ -  5754</MenuItem>
+                    <MenuItem value="ಕರ್ನಾಟಕ ಬ್ಯಾಂಕ್ -  8164">ಕರ್ನಾಟಕ ಬ್ಯಾಂಕ್ -  8164</MenuItem>
+                    <MenuItem value="ಕರ್ನಾಟಕ ಬ್ಯಾಂಕ್ -  2345">ಕರ್ನಾಟಕ ಬ್ಯಾಂಕ್ -  2345</MenuItem>
+                    <MenuItem value="ಕರ್ನಾಟಕ ಬ್ಯಾಂಕ್ -  5754">ಕರ್ನಾಟಕ ಬ್ಯಾಂಕ್ -  5754</MenuItem>
                     <MenuItem value="Cheque">Cheque</MenuItem>
                     <MenuItem value="DD">DD</MenuItem>
                   </TextField>
 
-                  {entry.paymentType === "Cheque" && (
-                    <TextField label="Cheque ಸಂಖ್ಯೆ" value={entry.cheque} onChange={(e) => { const updated = [...entries]; updated[index].cheque = e.target.value; setEntries(updated); }} size="small" />
+                  {(entry.paymentType === "Cheque" || entry.paymentType === "DD") && (
+                    <TextField
+                      label={entry.paymentType === "Cheque" ? "Cheque ಸಂಖ್ಯೆ" : "DD ಸಂಖ್ಯೆ"}
+                      value={entry.cheque}
+                      onChange={(e) => {
+                        const updated = [...entries];
+                        updated[index].cheque = e.target.value;
+                        setEntries(updated);
+                      }}
+                      size="small"
+                    />
                   )}
-
                   <TextField style={{ width: "350px", marginLeft: "5px" }} label="ರಸೀದಿ ಸಂಖ್ಯೆ" value={entry.receipt} onChange={(e) => { const updated = [...entries]; updated[index].receipt = e.target.value; setEntries(updated); }} size="small" />
                 </div>
 
                 <div className="members-row members-payment-row2">
                   <TextField label="ಜಮಾ ವಿವರ" value={entry.deposit} onChange={(e) => { const updated = [...entries]; updated[index].deposit = e.target.value; setEntries(updated); }} size="small" style={{ width: "13200px", }} />
+                </div>
+                <div class="members-mandatory-note">
+                  <p> ದಯವಿಟ್ಟು ಕಡ್ಡಾಯ ಕ್ಷೇತ್ರಗಳನ್ನು ಭರ್ತಿಮಾಡಿ</p>
                 </div>
 
                 {entries.length > 1 && (

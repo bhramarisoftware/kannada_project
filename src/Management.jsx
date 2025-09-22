@@ -1,10 +1,16 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
+
+
 import "./Management.css";
 
 function Management() {
     const navigate = useNavigate();
+    // Back button
+    const handleBack = () => {
+        navigate(-1);
+    };
 
     return (
         <div className="parent">
@@ -22,16 +28,18 @@ function Management() {
                 </div>
             </div>
 
+            
+
             {/* Main Home Page */}
             <div className="mains">
                 <div className="layers">
-                    <div className="texts1" style={{cursor: 'pointer'}} onClick={() => navigate('/Expenditure')}>
+                    <div className="texts1" style={{ cursor: 'pointer' }} onClick={() => navigate('/Expenditure')}>
                         {/* Navigate to Members */}
                         <img src="./rupee.png" alt="MemberDetails" />
                         <p style={{ color: "black" }}>ಖರ್ಚು ವಿಭಾಗ</p>
                     </div>
 
-                    <div className="texts2" style={{cursor: 'pointer'}} onClick={() => navigate('/Treasure')}>
+                    <div className="texts2" style={{ cursor: 'pointer' }} onClick={() => navigate('/Treasure')}>
                         <img
                             src="./Layer_2.png"
                             alt="help"
@@ -40,12 +48,12 @@ function Management() {
 
                     </div>
 
-                    <div className="texts3" style={{cursor: 'pointer'}} onClick={() => navigate('/BookSalesType')}>
+                    <div className="texts3" style={{ cursor: 'pointer' }} onClick={() => navigate('/BookSalesType')}>
                         <img src="./Layer_3.png" alt="book" />
                         <p style={{ color: "black" }}>ನಿರ್ವಾಹಕ ಹಂತ <br />ಪುಸ್ತಕ ಮಾರಾಟದ ಪ್ರಕಾರ</p>
                     </div>
 
-                    <div className="texts4" style={{cursor: 'pointer'}} onClick={() => navigate('/StoreManager')}>
+                    <div className="texts4" style={{ cursor: 'pointer' }} onClick={() => navigate('/StoreManager')}>
                         <img
                             src="./home.png"
                             alt="home"
@@ -53,7 +61,7 @@ function Management() {
                         <p style={{ color: "black" }}>ಅಂಗಡಿಯ <br />ನಿರ್ವಾಹಕರ ಹೆಸರು</p>
                     </div>
 
-                    <div className="texts5" style={{cursor: 'pointer'}} onClick={() => navigate('/SalesType')}>
+                    <div className="texts5" style={{ cursor: 'pointer' }} onClick={() => navigate('/SalesType')}>
                         <img
                             src="./Layer_3.png"
                             alt="home"

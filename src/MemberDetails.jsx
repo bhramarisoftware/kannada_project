@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ReactTransliterate } from "react-transliterate";
-import "react-transliterate/dist/index.css";
 import Typography from "@mui/material/Typography";
-
 import "./Memberdetails.css";
 import { DataGrid } from "@mui/x-data-grid";
 import {
@@ -11,7 +8,14 @@ import {
   Button,
   TextField,
   MenuItem,
-  IconButton
+  IconButton,
+  Menu,
+  Checkbox,
+  ListItemText,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  DialogContent
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -23,17 +27,52 @@ function MemberDetails() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
+  // Dialog state
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+
+  // Dropdown state for "ಹೊಸ ಸಹಾಯ ಧನ +"
+  const [anchorElDonation, setAnchorElDonation] = useState(null);
+  const [selectedDonations, setSelectedDonations] = useState([]);
+
+  // Dropdown state for "ಪುಸ್ತಕ ಮಾರಾಟ +"
+  const [anchorElBook, setAnchorElBook] = useState(null);
+  const [selectedBooks, setSelectedBooks] = useState([]);
+
+  const openDonation = Boolean(anchorElDonation);
+  const openBook = Boolean(anchorElBook);
+
+  // open menu
+  const handleDonationClick = (event) => {
+    event.stopPropagation();
+    setAnchorElDonation(event.currentTarget);
+  };
+  const handleBookClick = (event) => {
+    event.stopPropagation();
+    setAnchorElBook(event.currentTarget);
+  };
+
+  const handleDonationClose = (e) => {
+    e?.stopPropagation();
+    setAnchorElDonation(null);
+  };
+  const handleBookClose = (e) => {
+    e?.stopPropagation();
+    setAnchorElBook(null);
+  };
+
   // Columns for DataGrid
   const columns = [
     { field: "id", headerName: "ಸದಸ್ಯ ಸಂಖ್ಯೆ", width: 130 },
     { field: "name", headerName: "ಶ್ರೀಮತಿ / ಶ್ರೀ", width: 150 },
     { field: "nickname", headerName: "Nick name", width: 150 },
-    { field: "Status", headerName: "ಸದಸ್ಯರ ನಮೂನೆ", width: 150 },
+    { field: "membershipType", headerName: "ಸದಸ್ಯರ ನಮೂನೆ", width: 150 },
     { field: "status", headerName: "ಸದಸ್ಯರ ಸ್ಥಿತಿ", width: 130 },
-    { field: "date", headerName: "ಸೇರಿಸಿದ ದಿನಾಂಕ", width: 150 },
+    { field: "date", headerName: "ನೊಂದಣಿ  ದಿನಾಂಕ", width: 150 },
     { field: "mobile", headerName: "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ", width: 150 },
-    { field: "payment", headerName: "ಪಾವತಿ ವಿವರ", width: 200 },
-    { field: "address", headerName: "ನಗರ", width: 200 },
+    { field: "amount", headerName: "ಮೊಬಲಾಗು ", width: 150 },
+    { field: "payment", headerName: "ನಗದು ವಿವರ", width: 200 },
+    // { field: "address", headerName: "ನಗರ", width: 200 },
     {
       field: "actions",
       headerName: "ಕ್ರಿಯೆಗಳು",
@@ -42,9 +81,13 @@ function MemberDetails() {
         <IconButton
           color="error"
           size="small"
-          onClick={() => deleteMember(params.row.index)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setSelectedIndex(params.row.index);
+            setOpenDialog(true);
+          }}
         >
-          <DeleteIcon />
+          <DeleteIcon  />ಅಳಿಸಿ
         </IconButton>
       ),
     },
@@ -57,30 +100,25 @@ function MemberDetails() {
   }, []);
 
   // Delete a member
-  const deleteMember = (index) => {
-    if (window.confirm("ಸದಸ್ಯನನ್ನು ಅಳಿಸಲು ಬಯಸುವಿರಾ?")) {
+  const deleteMember = () => {
+    if (selectedIndex !== null) {
       const updated = [...Members];
-      updated.splice(index, 1);
+      updated.splice(selectedIndex, 1);
       setMembers(updated);
       localStorage.setItem("membersList", JSON.stringify(updated));
     }
-  };
-
-  // Edit a member
-  const editMember = (index) => {
-    localStorage.setItem("editMemberIndex", index);
-    navigate("/Members");
+    setOpenDialog(false);
+    setSelectedIndex(null);
   };
 
   // Filter + Search
   const filteredMembers = Members.filter((m) => {
     const matchSearch =
-      m.formData.name.toLowerCase().includes(search.toLowerCase()) ||
-      m.formData.nickname.toLowerCase().includes(search.toLowerCase()) ||
-      m.formData.mobile.includes(search);
+      m.formData?.name?.toLowerCase().includes(search.toLowerCase()) ||
+      m.formData?.nickname?.toLowerCase().includes(search.toLowerCase()) ||
+      m.formData?.mobile?.includes(search);
 
-    const matchStatus =
-      statusFilter === "all" ? true : m.status === statusFilter;
+    const matchStatus = statusFilter === "all" ? true : m.status === statusFilter;
 
     return matchSearch && matchStatus;
   });
@@ -89,19 +127,103 @@ function MemberDetails() {
   const rows = filteredMembers.map((member, i) => ({
     id: `LM00${i + 1}`,
     index: i,
-    name: member.formData.name,
-    nickname: member.formData.nickname,
-    status: member.status,
-    date: member.formData.date,
-    mobile: member.formData.mobile,
+    name: member.formData?.name || "",
+    nickname: member.formData?.nickname || "",
+    membershipType:member.membershipType || "",
+    status: member.status || "",
+    date: member.formData?.date || "",
+    mobile: member.formData?.mobile || "",
+    amount:(member.entries?.length || 0) > 0
+    ? member.entries.map((entry) => `₹${entry.payment}`).join(", ")
+    : "—",
     payment:
-      member.entries.length > 0
-        ? member.entries
-          .map((entry) => `₹${entry.payment} | ${entry.paymentType}`)
-          .join(", ")
-        : "—",
-    address: member.formData.address,
+  (member.entries?.length || 0) > 0
+    ? member.entries.map((entry) => entry.paymentType).join(", ")
+    : "—",
+
+    address: member.formData?.address || "",
   }));
+
+  // Common dropdown render function
+  const renderDropdown = (anchorEl, open, handleClose, selected, setSelected) => (
+    <Menu
+      anchorEl={anchorEl}
+      open={open}
+      onClose={handleClose}
+      anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      transformOrigin={{ vertical: "top", horizontal: "left" }}
+      PaperProps={{
+        style: {
+          borderRadius: "16px",
+          border: "1px solid #072E77",
+          padding: "4px",
+          minWidth: "160px",
+          width: 200,
+          maxHeight: "260px",
+        },
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {columns.map((col, index) => (
+        <MenuItem
+          key={col.field}
+          sx={{
+            borderBottom: index !== columns.length - 1 ? "1px solid #eee" : "none",
+            py: 0.5,
+            fontSize: "13px",
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setSelected((prev) =>
+              prev.includes(col.field)
+                ? prev.filter((f) => f !== col.field)
+                : [...prev, col.field]
+            );
+          }}
+        >
+          <Checkbox checked={selected.includes(col.field)} size="small" />
+          <ListItemText primary={col.headerName} />
+        </MenuItem>
+      ))}
+
+      <MenuItem
+        onClick={(e) => {
+          e.stopPropagation();
+          if (selected.length === columns.length) {
+            setSelected([]); // deselect all
+          } else {
+            setSelected(columns.map((col) => col.field)); // select all
+          }
+        }}
+        sx={{ justifyContent: "center" }}
+      >
+        <Button variant="outlined" size="small">
+          ಎಲ್ಲವನ್ನೂ ತೆರವುಗೊಳಿಸಿ
+        </Button>
+      </MenuItem>
+
+      <MenuItem
+        sx={{ justifyContent: "center" }}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleClose(e);
+        }}
+      >
+        <Button
+          variant="contained"
+          style={{
+            backgroundColor: "#072E77",
+            color: "#fff",
+            borderRadius: "8px",
+            fontSize: "12px",
+            padding: "4px 20px",
+          }}
+        >
+          ಅನ್ವಯಿಸು
+        </Button>
+      </MenuItem>
+    </Menu>
+  );
 
   return (
     <>
@@ -120,92 +242,114 @@ function MemberDetails() {
       </div>
 
       <div className="members-details-wrapper">
-        {/* Back Button + Actions */}
-        <div className="members-back-btn" onClick={() => navigate(-1)}>
-          <span>←</span> Back
-          <Button style={{ marginLeft: '837px', backgroundColor: '#072E77', color: '#FFFFFF', }}
-            variant="contained"
-            color="primary"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate("/Members");
-            }}
-            sx={{ mr: 2 }}
+        <div className="members-back-btn" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Button
+            variant="text"
+            onClick={() => navigate(-1)}
+            sx={{ textTransform: "none", color: "#000" }}
           >
-            ಹೊಸ ಸದಸ್ಯರ ಸೇರ್ಪಡೆ +
+            <span style={{ marginRight: 8 }}>←</span> Back
           </Button>
-          <Button style={{ backgroundColor: '#ffff', color: '#000000', }}
-            variant="contained"
-            color="primary"
-            onClick={() => navigate("")}
-            sx={{ mr: 2 }}
-          >
-            ಹೊಸ ಸಹಾಯ ಧನ +
-          </Button>
-          <Button style={{ backgroundColor: '#ffff', color: '#000000', }}
-            variant="contained"
-            color="primary"
-            onClick={() => navigate("")}
-            sx={{ mr: 2 }}
-          >
-            ಪುಸ್ತಕ ಮಾರಾಟ +
-          </Button>
+
+          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
+            <Button
+              style={{ backgroundColor: "#072E77", color: "#FFFFFF" }}
+              variant="contained"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate("/Members");
+              }}
+            >
+              ಹೊಸ ಸದಸ್ಯರ ಸೇರ್ಪಡೆ +
+            </Button>
+
+            {/* ಹೊಸ ಸಹಾಯ ಧನ + dropdown */}
+            <div>
+              <Button
+                style={{ backgroundColor: "#ffff", color: "#000000" }}
+                variant="contained"
+                onClick={handleDonationClick}
+              >
+                ಹೊಸ ಸಹಾಯ ಧನ +
+              </Button>
+              {renderDropdown(
+                anchorElDonation,
+                openDonation,
+                handleDonationClose,
+                selectedDonations,
+                setSelectedDonations
+              )}
+            </div>
+
+            {/* ಪುಸ್ತಕ ಮಾರಾಟ + dropdown */}
+            <div>
+              <Button
+                style={{ backgroundColor: "#ffff", color: "#000000" }}
+                variant="contained"
+                onClick={handleBookClick}
+              >
+                ಪುಸ್ತಕ ಮಾರಾಟ +
+              </Button>
+              {renderDropdown(
+                anchorElBook,
+                openBook,
+                handleBookClose,
+                selectedBooks,
+                setSelectedBooks
+              )}
+            </div>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '32px', width: '100%', marginBottom: 24 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "32px", width: "100%", marginBottom: 24 }}>
           <div>
             <strong>ಸದಸ್ಯರ ಪಟ್ಟಿ</strong>
             <Typography sx={{ marginTop: 2, marginBottom: 2 }}>
               ಒಟ್ಟು ಸದಸ್ಯರ ಸಂಖ್ಯೆ - {rows.length}
             </Typography>
           </div>
-          <div className="members-controls" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'nowrap',marginLeft:'auto' }}>
-            <TextField
-              label="ಹುಡುಕಿ"
-              variant="outlined"
-              size="small"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              sx={{ minWidth: 180 }}
-            />
-            <TextField
-              select
-              size="small"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              sx={{ minWidth: 180 }}
-            >
+
+          <div className="members-controls" style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "nowrap", marginLeft: "auto" }}>
+            <TextField label="ಹುಡುಕಿ" variant="outlined" size="small" value={search} onChange={(e) => setSearch(e.target.value)} sx={{ minWidth: 180 }} />
+            <TextField select size="small" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} sx={{ minWidth: 180 }}>
               <MenuItem value="all">ಸದಸ್ಯರ ಸ್ಥಿತಿ</MenuItem>
               <MenuItem value="ಸಕ್ರಿಯ">ಸಕ್ರಿಯ</MenuItem>
               <MenuItem value="ನಿಷ್ಕ್ರಿಯ">ನಿಷ್ಕ್ರಿಯ</MenuItem>
               <MenuItem value="ಮೃತ">ಮೃತ</MenuItem>
             </TextField>
-            <TextField
-              type="date"
-              size="small"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-            />
+            <TextField type="date" size="small" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
             <Button variant="outlined">Download</Button>
           </div>
         </div>
+
         {/* DataGrid Table */}
         <Box sx={{ height: 500, width: "100%", mt: 2 }}>
           <DataGrid
             rows={rows}
             columns={columns}
-            initialState={{
-              pagination: { paginationModel: { pageSize: 5 } },
-            }}
+            initialState={{ pagination: { paginationModel: { pageSize: 5 } } }}
             pageSizeOptions={[5, 10, 20]}
             disableRowSelectionOnClick
             onRowClick={(params) => navigate(`/MemberFullDetails/${params.row.index}`)}
           />
         </Box>
       </div>
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>ಇದನ್ನು ಅಳಿಸುವುದು ಖಚಿತವೇ?</DialogTitle>
+        <DialogContent>
+          <Typography>ಒಮ್ಮೆ ಅಳಿಸಿದ ನಂತರ ಅದನ್ನು ಶಾಶ್ವತವಾಗಿ ಅಳಿಸಲಾಗುತ್ತದೆ</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)} color="primary">
+            ಬೇಡ
+          </Button>
+          <Button onClick={deleteMember} color="error">
+            ಅಳಿಸು
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
-
 export default MemberDetails;
-
