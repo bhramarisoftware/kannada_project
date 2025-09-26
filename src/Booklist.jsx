@@ -10,6 +10,8 @@ import {
   IconButton,
   Select,
   MenuItem,
+
+  
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -17,37 +19,43 @@ import { Margin } from "@mui/icons-material";
 
 function SalesTable() {
   const navigate = useNavigate();
-  // Sample data
-  const [rows, setRows] = useState([
-    {
-      id: 1,
-      receiptNo: 2518,
-      date: "00-Jan-0000",
-      count: 1,
-      amount: "₹ 500.00",
-      mode: "ನಗದು",
-      customer: "ಹೆಸರು",
-    },
-    {
-      id: 2,
-      receiptNo: 2519,
-      date: "00-Jan-0000",
-      count: 5,
-      amount: "₹ 500.00",
-      mode: "ಕರ್ನಾಟಕ ಬ್ಯಾಂಕ್ - 5754",
-      customer: "ಹೆಸರು",
-    },
-    {
-      id: 3,
-      receiptNo: 2520,
-      date: "00-Jan-0000",
-      count: 6,
-      amount: "₹ 500.00",
-      mode: "ನಗದು",
-      customer: "ಹೆಸರು",
-    },
-  ]);
+  // Load sales data from localStorage
+  const [rows, setRows] = useState(() => {
+    const saved = localStorage.getItem("bookSalesList");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Defensive: ensure each row has required fields
+        return Array.isArray(parsed)
+          ? parsed.map((row, idx) => ({
+              ...row,
+              id: row.id || idx + 1,
+            }))
+          : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
 
+  // Optionally, reload data when returning from BookSales
+  React.useEffect(() => {
+    const saved = localStorage.getItem("bookSalesList");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setRows(Array.isArray(parsed)
+          ? parsed.map((row, idx) => ({
+              ...row,
+              id: row.id || idx + 1,
+            }))
+          : []);
+      } catch {
+        setRows([]);
+      }
+    }
+  }, []);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [dateFrom, setDateFrom] = useState("");
@@ -95,11 +103,11 @@ function SalesTable() {
 
   // Columns
   const columns = [
-    { field: "receiptNo", headerName: "ರಸೀತಿ ಸಂಖ್ಯೆ", flex: 1 },
-    { field: "date", headerName: "ಮಿತ್ತೂರಾದ ದಿನಾಂಕ", flex: 1 },
-    { field: "count", headerName: "ಒಟ್ಟು ಪ್ರಮಾಣಗಳು", flex: 1 },
-    { field: "amount", headerName: "ಮೊತ್ತ", flex: 1 },
-    { field: "mode", headerName: "ಪಾವತಿ ರೀತಿ", flex: 1 },
+    { field: "receiptNo", headerName: "ರಶೀದಿ ಸಂಖ್ಯೆ", flex: 1 },
+    { field: "date", headerName: "ಮಾರಾಟವಾದ ದಿನಾಂಕ", flex: 1 },
+    { field: "count", headerName: "ಒಟ್ಟು ಪುಸ್ತಕಗಳು", flex: 1 },
+    { field: "amount", headerName: "ಮಾರಾಟವಾದ ಮೊತ್ತ", flex: 1 },
+    { field: "mode", headerName: "ವಹಿವಾಟು ರೀತಿ", flex: 1 },
     { field: "customer", headerName: "ಗ್ರಾಹಕರ ಹೆಸರು", flex: 1 },
     {
       field: "actions",
