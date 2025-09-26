@@ -17,10 +17,14 @@ import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InfoIcon from "@mui/icons-material/Info";
 import PrintIcon from "@mui/icons-material/Print";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { useNavigate } from "react-router-dom";
+
 
 const initialRows = [
     { id: 1, name: " ", price: 1000, quantity: 1, tax: 10, total: (1000 + 10) * 1 },
 ];
+
 
 export default function KannadaPage() {
     const [rows, setRows] = useState(initialRows);
@@ -40,11 +44,25 @@ export default function KannadaPage() {
     const [pan, setPan] = useState("");
     const [otherId, setOtherId] = useState("");
 
+    // Extra fields state (separate from main fields)
+    const [extraPlace, setExtraPlace] = useState("");
+    const [extraAadhar, setExtraAadhar] = useState("");
+    const [extraPan, setExtraPan] = useState("");
+    const [extraOtherId, setExtraOtherId] = useState("");
+
     const [paymentMethod, setPaymentMethod] = useState("ರೂಪಾಯ - ₹");
     const [paymentAmount, setPaymentAmount] = useState("");
 
     const [showPreview, setShowPreview] = useState(false);
     const [showCancelDialog, setShowCancelDialog] = useState(false);
+
+    const [showExtraFields, setShowExtraFields] = useState(false);
+
+    const [chequeNumber, setChequeNumber] = useState("");
+    const [extraChequeNumber, setExtraChequeNumber] = useState("");
+
+    const navigate = useNavigate();
+
 
     // Add new product
     const handleAddProduct = () => {
@@ -71,6 +89,25 @@ export default function KannadaPage() {
             )
         );
     };
+                {/* Save sales data and navigate to Booklist */}
+                <Button
+                    style={{ display: "none" }}
+                    id="saveAndNavigateBookSales"
+                    onClick={() => {
+                        // Prepare sales data for Booklist
+                        const salesData = rows.map((row) => ({
+                            id: row.id,
+                            receiptNo: otherId || `R${row.id}`,
+                            date: date,
+                            count: row.quantity,
+                            amount: `₹ ${row.total}`,
+                            mode: place,
+                            customer: name,
+                        }));
+                        localStorage.setItem("bookSalesList", JSON.stringify(salesData));
+                        navigate("/Booklist");
+                    }}
+                />
 
     // Cancel / Reset all form fields and table
     const handleCancel = () => {
@@ -85,10 +122,15 @@ export default function KannadaPage() {
         setAadhar("");
         setPan("");
         setOtherId("");
+        setExtraPlace("");
+        setExtraAadhar("");
+        setExtraPan("");
+        setExtraOtherId("");
         setPaymentMethod("ರೂಪಾಯ - ₹");
         setPaymentAmount("");
         setRows([...initialRows]);
         setShowPreview(false);
+        setShowExtraFields(false);
     };
 
     // Totals
@@ -155,10 +197,48 @@ export default function KannadaPage() {
             <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
                 <TextField
                     fullWidth
+                    freeSolo
+                    select
                     label="ಪುಸ್ತಕ ಹೆಸರು"
                     value={productName}
                     onChange={(e) => setProductName(e.target.value)}
-                />
+                >
+                    <MenuItem value="ಕನ್ನಡ ಸಂಧ್ಯಾಭಾಷ್ಯ – 195/-">ಕನ್ನಡ ಸಂಧ್ಯಾಭಾಷ್ಯ – 195/-</MenuItem>
+                    <MenuItem value="ಸಂಧ್ಯಾವಂದನಮ್ – 75/-">ಸಂಧ್ಯಾವಂದನಮ್ – 75/-</MenuItem>
+                    <MenuItem value="ಪಂಚಾಯತನ ದೇವರಪೂಜೆ – 90/-">ಪಂಚಾಯತನ ದೇವರಪೂಜೆ – 90/-</MenuItem>
+                    <MenuItem value="ವಿಷ್ಣುಪ್ರೋಕ್ತ ಶಿವಸಹಸ್ರನಾಮ – 60/-">ವಿಷ್ಣುಪ್ರೋಕ್ತ ಶಿವಸಹಸ್ರನಾಮ – 60/-</MenuItem>
+                    <MenuItem value="ಆದಿತ್ಯಾದಿ ನವಗ್ರಹಪೂಜಾ ವಿಧಿಃ – 105/-">ಆದಿತ್ಯಾದಿ ನವಗ್ರಹಪೂಜಾ ವಿಧಿಃ – 105/-</MenuItem>
+                    <MenuItem value="ಮಂತ್ರಮಂಜರೀ – 195/-">ಮಂತ್ರಮಂಜರೀ – 195/-</MenuItem>
+                    <MenuItem value="ನಿತ್ಯೋಪಾಸನಪದ್ಧತಿಃ – 105/-">ನಿತ್ಯೋಪಾಸನಪದ್ಧತಿಃ – 105/-</MenuItem>
+                    <MenuItem value="ವೈದಿಕಸಂಭಾರಃ – 90/-">ವೈದಿಕಸಂಭಾರಃ – 90/-</MenuItem>
+                    <MenuItem value="ಸತ್ಯನಾರಾಯಣ ಷಟ್ಪದಿ – 36/-">ಸತ್ಯನಾರಾಯಣ ಷಟ್ಪದಿ – 36/-</MenuItem>
+                    <MenuItem value="ವೇದ-ವೇದಾಂಗ ಪರಿವಾರ(ಕೆಲವೇ ಪ್ರತಿಗಳು ಲಭ್ಯ) – 255/-">ವೇದ-ವೇದಾಂಗ ಪರಿವಾರ(ಕೆಲವೇ ಪ್ರತಿಗಳು ಲಭ್ಯ) – 255/-</MenuItem>
+                    <MenuItem value="ಭಗವತ್ಪಾದ ಶ್ರೀ ಶಂಕಕರಾಚಾರ್ಯರು – 60/-">ಭಗವತ್ಪಾದ ಶ್ರೀ ಶಂಕಕರಾಚಾರ್ಯರು – 60/-</MenuItem>
+                    <MenuItem value="ಶ್ರೀ ಸತ್ಯಗಣಪತಿವ್ರತವಿಧಿಃ – 165/-">ಶ್ರೀ ಸತ್ಯಗಣಪತಿವ್ರತವಿಧಿಃ – 165/-</MenuItem>
+                    <MenuItem value="ಶ್ಲೋಕಸಮಾಹಾರಃ-೨ – 50/-">ಶ್ಲೋಕಸಮಾಹಾರಃ-೨ – 50/-</MenuItem>
+                    <MenuItem value="ಪುರಾಣಲೋಕ – (ಕೆಲವೇ ಪ್ರತಿಗಳು ಲಭ್ಯ) – 345/-">ಪುರಾಣಲೋಕ – (ಕೆಲವೇ ಪ್ರತಿಗಳು ಲಭ್ಯ) – 345/-</MenuItem>
+                    <MenuItem value="ಶ್ರೀಗಂಗಾಕಲ್ಪೋಕ್ತಪೂಜಾವಿಧಿಃ, ಕನ್ನಡ – 45/-">ಶ್ರೀಗಂಗಾಕಲ್ಪೋಕ್ತಪೂಜಾವಿಧಿಃ, ಕನ್ನಡ – 45/-</MenuItem>
+                    <MenuItem value="ಶ್ರೀಗಂಗಾಕಲ್ಪೋಕ್ತಪೂಜಾವಿಧಿಃ , ಸಂಸ್ಕೃತ – 36/-">ಶ್ರೀಗಂಗಾಕಲ್ಪೋಕ್ತಪೂಜಾವಿಧಿಃ , ಸಂಸ್ಕೃತ – 36/-</MenuItem>
+                    <MenuItem value="ತ್ಯಾಗರಾಜರ ಘನರಾಗಪಂಚರತ್ನ ಕೀರ್ತನೆಗಳು – 105/-">ತ್ಯಾಗರಾಜರ ಘನರಾಗಪಂಚರತ್ನ ಕೀರ್ತನೆಗಳು – 105/-</MenuItem>
+                    <MenuItem value="ನವಾಗಾರಪ್ರವೇಶವಿಧಿಃ – 150/-">ನವಾಗಾರಪ್ರವೇಶವಿಧಿಃ – 150/-</MenuItem>
+                    <MenuItem value="ಗೋದಾನಾದಿ ವಿಧಾನಮ್ – 100/-">ಗೋದಾನಾದಿ ವಿಧಾನಮ್ – 100/-</MenuItem>
+                    <MenuItem value="ಶ್ರೀಕೃಷ್ಣವ್ರತಕಲ್ಪೋಕ್ತಪೂಜಾ – 90/-">ಶ್ರೀಕೃಷ್ಣವ್ರತಕಲ್ಪೋಕ್ತಪೂಜಾ – 90/-</MenuItem>
+                    <MenuItem value="ಪುರೋಹಿತಸ್ಮರಣ – 270/-">ಪುರೋಹಿತಸ್ಮರಣ – 270/-</MenuItem>
+                    <MenuItem value="ಶ್ರೀಸತ್ಯನಾರಾಯಣಪೂಜಾವಿಧಿಃ – 135/-">ಶ್ರೀಸತ್ಯನಾರಾಯಣಪೂಜಾವಿಧಿಃ – 135/-</MenuItem>
+                    <MenuItem value="ನಿತ್ಯಾಚಾರಗಳ ಮಹತ್ವ – 40/-">ನಿತ್ಯಾಚಾರಗಳ ಮಹತ್ವ – 40/-</MenuItem>
+                    <MenuItem value="ಸೌಂದರ್ಯ ಸೋಪಾನ – 330/-">ಸೌಂದರ್ಯ ಸೋಪಾನ – 330/-</MenuItem>
+                    <MenuItem value="ಯಕ್ಷಗಾನ ಪ್ರಸಂಗಮಾಲಿಕಾ -೨">ಯಕ್ಷಗಾನ ಪ್ರಸಂಗಮಾಲಿಕಾ -೨</MenuItem>
+                    <MenuItem value="ಪುರೋಹಿತಪ್ರವರ ಮಿತ್ತೂರು ತಿಮ್ಮಯ್ಯ ಭಟ್ಟರು – 60/-">ಪುರೋಹಿತಪ್ರವರ ಮಿತ್ತೂರು ತಿಮ್ಮಯ್ಯ ಭಟ್ಟರು – 60/-</MenuItem>
+                    <MenuItem value="ಸಂಸ್ಕಾರವಿವರಣೆ – 100/-">ಸಂಸ್ಕಾರವಿವರಣೆ – 100/-</MenuItem>
+                    <MenuItem value="ಶ್ರೀಘೇರಂಡಸಂಹಿತಾ – 200/-">ಶ್ರೀಘೇರಂಡಸಂಹಿತಾ – 200/-</MenuItem>
+                    <MenuItem value="ಶ್ರೀರಾಮಕಲ್ಪೋಕ್ತಪೂಜಾ – 75/-">ಶ್ರೀರಾಮಕಲ್ಪೋಕ್ತಪೂಜಾ – 75/-</MenuItem>
+                    <MenuItem value="ಬಡೆಕ್ಕಿಲ ವಂಶಪರಂಪರೆ – 180/-">ಬಡೆಕ್ಕಿಲ ವಂಶಪರಂಪರೆ – 180/-</MenuItem>
+                    <MenuItem value="ಹಿರಿಯರಿವರು – 180/-">ಹಿರಿಯರಿವರು – 180/-</MenuItem>
+                    <MenuItem value="ಭಾಗವತಸಪ್ತಾಹಯಜ್ಞ – 195/-">ಭಾಗವತಸಪ್ತಾಹಯಜ್ಞ – 195/-</MenuItem>
+                    <MenuItem value="ಹಠಪ್ರದೀಪಿಕಾ – (ಯೋಗಗ್ರಂಥ)">ಹಠಪ್ರದೀಪಿಕಾ – (ಯೋಗಗ್ರಂಥ)</MenuItem>
+                    <MenuItem value="ಶ್ರೀಮದ್ಭಾಗವತಂ – (ಕೆಲವೇ ಪ್ರತಿಗಳು ಲಭ್ಯ)">ಶ್ರೀಮದ್ಭಾಗವತಂ – (ಕೆಲವೇ ಪ್ರತಿಗಳು ಲಭ್ಯ)</MenuItem>
+
+                </TextField>
                 <TextField
                     type="number"
                     label="ಸಂಖ್ಯೆ"
@@ -181,13 +261,13 @@ export default function KannadaPage() {
                 style={{
                     width: "100%",
                     borderCollapse: "collapse",
-                    marginBottom: 20,
+                    marginBottom: 30,
                     textAlign: "center",
                 }}
             >
                 <thead>
                     <tr style={{ background: "#eee" }}>
-                        <th>ಕ್ರಮ ಸಂಖ್ಯೆ</th>
+                        <th style={{ padding: "16px 8px" }}>ಕ್ರಮ ಸಂಖ್ಯೆ</th>
                         <th>ಪುಸ್ತಕಗಳ ಹೆಸರು</th>
                         <th>ಪುಸ್ತಕ ಬೆಲೆ</th>
                         <th>ಪುಸ್ತಕಗಳ ಸಂಖ್ಯೆ</th>
@@ -226,14 +306,14 @@ export default function KannadaPage() {
                     value={extraDesc}
                     onChange={(e) => setExtraDesc(e.target.value)}
                 />
-                <Box sx={{ display: "flex", gap: 20 }}>
+                <Box sx={{ display: "flex", gap: 55 }}>
                     <TextField
                         type="number"
                         label="ಇತರ ಬೆಲೆ"
                         value={extraPrice}
                         onChange={(e) => setExtraPrice(e.target.value)}
                     />
-                    <Box sx={{ display: "flex", justifyContent: "space-between", gap: 25, mb: 2 }}>
+                    <Box sx={{ display: "flex ", justifyContent: "flex-end", gap: 30, mb: 2 }}>
                         <Typography>ಒಟ್ಟು ಪುಸ್ತಕ: {totalQuantity}</Typography>
                         <Typography>ಒಟ್ಟು ಖರೀದಿ ಬೆಲೆ: ₹ {totalAmount}</Typography>
                     </Box>
@@ -241,20 +321,87 @@ export default function KannadaPage() {
             </Box>
 
             {/* IDs */}
-            <Box sx={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 2, mb: 2 }}>
-                <FormControl fullWidth>
+            <div>
+                <FormControl style={{ width: 330, marginBottom: 20, marginRight: 20 }}>
                     <InputLabel>ಹಣ ಸ್ವೀಕರಿಸುವ ಪ್ರಕಾರ</InputLabel>
                     <Select value={place} onChange={(e) => setPlace(e.target.value)}>
                         <MenuItem value="ನಗದು">ನಗದು</MenuItem>
                         <MenuItem value="Cheque">Cheque</MenuItem>
+                        <MenuItem value="DD">DD</MenuItem>
                     </Select>
                 </FormControl>
-                <TextField label="AADHAR NO" value={aadhar} onChange={(e) => setAadhar(e.target.value)} />
-                <TextField label="PAN NO" value={pan} onChange={(e) => setPan(e.target.value)} />
-                <TextField label="ರಶೀದಿ ಸಂಖ್ಯೆ " value={otherId} onChange={(e) => setOtherId(e.target.value)} />
-            </Box>
+                {(place === "Cheque" || place === "DD") && (
+                    <TextField
+                        label={place === "Cheque" ? "Cheque ಸಂಖ್ಯೆ" : "DD ಸಂಖ್ಯೆ"}
+                        value={chequeNumber}
+                        onChange={(e) => setChequeNumber(e.target.value)}
+                        style={{ width: 310, marginRight: 20 }}
+                    />
+                )}
+                <TextField label="AADHAR NO" value={aadhar} onChange={(e) => setAadhar(e.target.value)} style={{ width: 330, marginRight: 20 }} />
+                <TextField label="PAN NO" value={pan} onChange={(e) => setPan(e.target.value)} style={{ width: 330, marginRight: 20 }} />
+                <TextField label="ರಶೀದಿ ಸಂಖ್ಯೆ " value={otherId} onChange={(e) => setOtherId(e.target.value)} style={{ width: 330, marginRight: 20, marginBottom: 20 }} />
+                <Button
+                    variant="contained"
+                    color="white"
+                    onClick={() => setShowExtraFields(prev => !prev)}
+                    sx={{
+                        minWidth: 0,
+                        width: 40,
+                        height: 40,
+                        borderRadius: "50%",
+                        p: 0,
+                        fontSize: "1.5rem",
+                        fontWeight: "bold",
+                    }}
+                >
+                    +
+                </Button>
+            </div>
 
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            {showExtraFields && (
+                <div>
+                    <FormControl style={{ width: 300, marginBottom: 20, marginRight: 20 }}>
+                        <InputLabel>ಹಣ ಸ್ವೀಕರಿಸುವ ಪ್ರಕಾರ</InputLabel>
+                        <Select value={extraPlace} onChange={(e) => setExtraPlace(e.target.value)}>
+                            <MenuItem value="ನಗದು">ನಗದು</MenuItem>
+                            <MenuItem value="Cheque">Cheque</MenuItem>
+                            <MenuItem value="DD">DD</MenuItem>
+                        </Select>
+                    </FormControl>
+                    {(extraPlace === "Cheque" || extraPlace === "DD") && (
+                        <TextField
+                            label={extraPlace === "Cheque" ? "Cheque ಸಂಖ್ಯೆ" : "DD ಸಂಖ್ಯೆ"}
+                            value={extraChequeNumber}
+                            onChange={(e) => setExtraChequeNumber(e.target.value)}
+                            style={{ width: 250, marginRight: 20 }}
+                        />
+                    )}
+                    <TextField label="AADHAR NO" value={extraAadhar} onChange={(e) => setExtraAadhar(e.target.value)} style={{ width: 250, marginRight: 20 }} />
+                    <TextField label="PAN NO" value={extraPan} onChange={(e) => setExtraPan(e.target.value)} style={{ width: 250, marginRight: 20 }} />
+                    <TextField label="ರಶೀದಿ ಸಂಖ್ಯೆ " value={extraOtherId} onChange={(e) => setExtraOtherId(e.target.value)} style={{ width: 250, marginRight: 20 }} />
+                    <TextField label="ಹಣವನ್ನು ಸ್ವೀಕರಿಸಲಾಗುತ್ತಿದೆ " value={extraOtherId} onChange={(e) => setExtraOtherId(e.target.value)} style={{ width: 250, marginRight: 20 }} />
+                    {/* 🆕 Delete button – only visible if extra fields are shown */}
+                    {showExtraFields && (
+                        <Button
+                            variant="outlined"
+                            color="error"
+                            onClick={() => {
+                                setShowExtraFields(false);
+                                setExtraPlace("");
+                                setExtraAadhar("");
+                                setExtraPan("");
+                                setExtraOtherId("");
+                            }}
+                            sx={{ minWidth: 0, p: 1, height: 40 }}
+                        >
+                            <DeleteIcon />
+                        </Button>
+                    )}
+                </div>
+            )}
+
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, marginTop: 3 }}>
                 <FormControl sx={{ minWidth: 150 }}>
                     <InputLabel>ರಿಯಾಯಿತಿ</InputLabel>
                     <Select
@@ -262,7 +409,7 @@ export default function KannadaPage() {
                         onChange={(e) => setPaymentMethod(e.target.value)}
                     >
                         <MenuItem value="ರೂಪಾಯಿ- ₹">ರೂಪಾಯಿ - ₹</MenuItem>
-                        <MenuItem value="ಡಾಲರ್ $">ಡಾಲರ್ $</MenuItem>
+                        <MenuItem value="ಶೇಕಡಾವಾರು - %">ಶೇಕಡಾವಾರು-%</MenuItem>
                     </Select>
                 </FormControl>
                 <TextField
@@ -280,7 +427,7 @@ export default function KannadaPage() {
                 />
                 <Typography>ಸ್ವೀಕರಿಸುತ್ತಿರುವ ಮೊತ್ತ ₹ {paymentAmount || 0}</Typography>
                 {/* Buttons */}
-                <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
+                <Box sx={{ display: "flex", gap: 2, mt: 2, marginLeft: 'auto' }}>
                     <Button
                         variant="outlined"
                         color="error"
@@ -300,21 +447,55 @@ export default function KannadaPage() {
             </Box>
 
             {/* ✅ Dialog Popup */}
-            <Dialog open={showPreview} onClose={() => setShowPreview(false)}>
+            <Dialog open={showPreview} onClose={() => setShowPreview(false)}
+                PaperProps={{
+                    sx: {
+                        width: "500px",      // fixed width
+                        maxWidth: "90vw",    // prevent overflow on small screens
+                        height: "300px",     // optional fixed height
+                        maxHeight: "80vh",   // prevent overflow vertically
+                        p: 2                 // optional padding inside Paper
+                    }
+                }}
+            >
+                
                 <DialogTitle>ಖರೀದಿಯ ಸಂಪೂರ್ಣ ವಿವರಗಳು</DialogTitle>
                 <DialogContent dividers>
                     <Typography>ಒಟ್ಟು ಖರೀದಿ ಮೊತ್ತ: ₹ {totalWithExtra}</Typography>
                     <Typography>ರಿಯಾಯಿತಿ ಮೊತ್ತ: ₹ {paymentAmount || 0}</Typography>
                     <Typography>ಪಾವತಿಸಲು ಬಾಕಿ ಇರುವ ಮೊತ್ತ: ₹ {Math.max(finalPayable, 0)}</Typography>
                     <Typography>ಸ್ವೀಕರಿಸುತ್ತಿರುವ ಮೊತ್ತ: ₹ {paymentAmount || 0}</Typography>
-                    <Typography sx={{ mt: 2, color: "red", fontWeight: "bold" }}>
-                        ಬದಲಾವಣೆಗಳಿವೆ
-                    </Typography>
+
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setShowPreview(false)} variant="contained" color="warning">
-                        ಸರಿ, ಮುಂದುವರಿಯಿರಿ
-                    </Button>
+                    <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+                        <Button
+                            sx={{ mt: 2, color: "red", fontWeight: "bold" }}
+                            onClick={() => setShowPreview(false)}   // go to previous page
+                        >
+                            ಬದಲಾವಣೆಗಳಿವೆ
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                // Prepare sales data for Booklist
+                                const salesData = rows.map((row) => ({
+                                    id: row.id,
+                                    receiptNo: otherId || `R${row.id}`,
+                                    date: date,
+                                    count: row.quantity,
+                                    amount: `₹ ${row.total}`,
+                                    mode: place,
+                                    customer: name,
+                                }));
+                                localStorage.setItem("bookSalesList", JSON.stringify(salesData));
+                                navigate("/Booklist");
+                            }}
+                            variant="contained"
+                            color="warning"
+                        >
+                            ಸರಿ, ಮುಂದುವರಿಯಿರಿ
+                        </Button>
+                    </Box>
 
                 </DialogActions>
 
@@ -328,7 +509,7 @@ export default function KannadaPage() {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setShowCancelDialog(false)} color="error">
-                       ಈ ಪುಟದಿಂದ ನಿರ್ಗಮಿಸ
+                        ಈ ಪುಟದಿಂದ ನಿರ್ಗಮಿಸ
                     </Button>
                     <Button
                         onClick={() => {
@@ -336,7 +517,7 @@ export default function KannadaPage() {
                             setShowCancelDialog(false);
                         }}
                         color=""
-                        
+
                     >
                         ಈ ಪುಟದಲ್ಲಿ ಇರಿ
                     </Button>

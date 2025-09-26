@@ -151,7 +151,7 @@ export default function CustomPage() {
           <Typography variant="h6">
             <b>ನಿರ್ವಾಹಕ ಹಂತ ಪುಸ್ತಕ ಮಾರಾಟದ ಪ್ರಕಾರ</b>
           </Typography>
-          <Button variant="contained" color="primary" onClick={handleAdd}>
+          <Button variant="contained" style={{ backgroundColor: "#072E77" }} onClick={handleAdd}>
             ಹೊಸ ನಿರ್ವಾಹಕ ಹಂತ ಪುಸ್ತಕ ಮಾರಾಟದ ಪ್ರಕಾರ +
           </Button>
         </Box>

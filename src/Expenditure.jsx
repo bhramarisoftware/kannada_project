@@ -158,7 +158,7 @@ export default function CustomPage() {
           <Typography variant="h6">
             <b>ಖರ್ಚು ವಿಭಾಗ</b>
           </Typography>
-          <Button variant="contained" color="primary" onClick={handleAdd}>
+          <Button variant="contained" style={{ backgroundColor: "#072E77" }} onClick={handleAdd}>
             ಹೊಸ ಖರ್ಚು ವಿಭಾಗ +
           </Button>
         </Box>

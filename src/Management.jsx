@@ -1,12 +1,17 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import {
+Box,
+Typography,
+} from "@mui/material";
 
 
 import "./Management.css";
 
 function Management() {
     const navigate = useNavigate();
+
     // Back button
     const handleBack = () => {
         navigate(-1);
@@ -27,6 +32,15 @@ function Management() {
                     <img src="./Ellipse 40.png" alt="profile" />
                 </div>
             </div>
+
+
+            {/* Back Button */}
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <ArrowBackIcon sx={{ mr: 1, cursor: "pointer" }} onClick={handleBack} />
+          <Typography variant="body1" sx={{ cursor: "pointer" }} onClick={handleBack}>
+            Back
+          </Typography>
+        </Box>
 
             
 

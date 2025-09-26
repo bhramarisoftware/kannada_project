@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { DateRangePicker } from "react-date-range";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
 import { DataGrid } from "@mui/x-data-grid";
 import {
   Button,
@@ -9,15 +12,24 @@ import {
   FormControl,
   Box,
   Typography,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 
 function DonationTable() {
   const navigate = useNavigate();
   const [rows, setRows] = useState([]);
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("");
-  const [dateRange, setDateRange] = useState({ start: "", end: "" });
+  // Date range state: null means no filter, otherwise {startDate, endDate, key}
+  const [dateRange, setDateRange] = useState(null);
+  const [openDateDialog, setOpenDateDialog] = useState(false);
 
   // Load donations from localStorage
   const loadDonations = () => {
@@ -48,37 +60,45 @@ function DonationTable() {
 
     const matchesType = filterType ? row.donationType === filterType : true;
 
-    const matchesDate =
-      (!dateRange.start || new Date(row.date) >= new Date(dateRange.start)) &&
-      (!dateRange.end || new Date(row.date) <= new Date(dateRange.end));
-
+    // Only filter by date if a range is selected
+    let matchesDate = true;
+    if (dateRange && dateRange.startDate && dateRange.endDate) {
+      const rowDate = new Date(row.date);
+      const start = new Date(dateRange.startDate);
+      const end = new Date(dateRange.endDate);
+      start.setHours(0,0,0,0);
+      end.setHours(23,59,59,999);
+      matchesDate = rowDate >= start && rowDate <= end;
+    }
     return matchesSearch && matchesType && matchesDate;
   });
 
   // Columns
   const columns = [
-    { field: "donorName", headerName: "ದಾನಿದಾರರ ಹೆಸರು", width: 180 },
-    { field: "nickName", headerName: "Nick name", width: 120 },
-    { field: "receipt", headerName: "ರಸೀದಿ ಸಂಖ್ಯೆ", width: 150 },
-    { field: "donationType", headerName: "ದಾನ ಪ್ರಕಾರ", width: 150 },
-    { field: "amount", headerName: "ಮೊತ್ತ", width: 120 },
-    { field: "deposit", headerName: "ಜಮಾ ವಿವರ", width: 200 },
-    { field: "mobile", headerName: "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ", width: 160 },
-    { field: "date", headerName: "ದಿನಾಂಕ", width: 150 },
-    { field: "note", headerName: "ಟಿಪ್ಪಣಿ", width: 200 },
+    { field: "donorName", headerName: "ಶ್ರೀಮತಿ /ಶ್ರೀ", width: 180 },
+    { field: "date", headerName: "ಸ್ವೀಕರಿಸಿದ ದಿನಾಂಕ", width: 120 },
+    { field: "series", headerName: "ಕ್ರಮಾoಕ", width: 150 },
+    { field: "member", headerName: "ಸದಸ್ಯ ಸಂಖ್ಯೆ", width: 150 },
+    { field: "nickname", headerName: "Nick name", width: 120 },
+    { field: "fund", headerName: "ನಿಧಿ ವಿವರ", width: 200 },
+    { field: "payment", headerName: "ಮೊಬಲಾಗು", width: 160 },
+    { field: "details", headerName: "ನಗದು ವಿವರ", width: 150 },
+    { field: "mobile", headerName: "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ", width: 200 },
     {
       field: "actions",
-      headerName: "ಕ್ರಿಯೆ",
+      headerName: "ಕ್ರಿಯೆಗಳು",
       width: 120,
       renderCell: (params) => (
-        <Button
-          variant="contained"
+        <IconButton
           color="error"
           size="small"
-          onClick={() => handleDelete(params.row.id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDelete(params.row.id);
+          }}
         >
-          ಅಳಿಸಿ
-        </Button>
+          <DeleteIcon /> ಅಳಿಸಿ
+        </IconButton >
       ),
     },
   ];
@@ -98,14 +118,14 @@ function DonationTable() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',gap:12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
         <Button
-        style={{marginRight:50}}
+          style={{ marginRight: 50 }}
           variant="text"
           onClick={() => navigate(-1)}
           sx={{ textTransform: "none", color: "#000" }}
         >
-          <span style={{ marginRight:25, }}>←Back</span> 
+          <span style={{ marginRight: 25, }}>←Back</span>
         </Button>
         <Button
           style={{ backgroundColor: '#072E77', color: '#FFFFFF', marginRight: '30px' }}
@@ -149,15 +169,39 @@ function DonationTable() {
               <MenuItem value="Online">Online</MenuItem>
             </Select>
           </FormControl>
-          <TextField
-            type="date"
-            size="small"
-            label="From"
-            InputLabelProps={{ shrink: true }}
-            value={dateRange.start}
-            onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+          <Button
+            variant="outlined"
+            color="#072E77"
+            size="hug"
+            onClick={() => setOpenDateDialog(true)}
+            sx={{ minWidth: 160 }}
+          >
+            {dateRange && dateRange.startDate && dateRange.endDate
+              ? `${dateRange.startDate.toLocaleDateString()} - ${dateRange.endDate.toLocaleDateString()}`
+              : 'Date Range'}
+          </Button>
+      <Dialog open={openDateDialog} onClose={() => setOpenDateDialog(false)}>
+        <DialogTitle>ದಿನಾಂಕ ವ್ಯಾಪ್ತಿ ಆಯ್ಕೆಮಾಡಿ</DialogTitle>
+        <DialogContent>
+          <DateRangePicker
+            ranges={dateRange ? [dateRange] : [{ startDate: new Date(), endDate: new Date(), key: 'selection' }]}
+            onChange={(item) => setDateRange(item.selection)}
           />
-          <Button variant="outlined">Download</Button>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setDateRange(null); setOpenDateDialog(false); }} color="primary">
+            Clear
+          </Button>
+          <Button
+            onClick={() => setOpenDateDialog(false)}
+            variant="contained"
+            style={{ backgroundColor: "#072E77", color: "#fff" }}
+          >
+            ಅನ್ವಯಿಸು
+          </Button>
+        </DialogActions>
+      </Dialog>
+          <Button variant="outlined" color="#072E77">Download</Button>
         </Box>
 
         {/* DataGrid */}
