@@ -18,15 +18,22 @@ import {
   DialogContent
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { DateRangePicker } from "react-date-range";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
+
 
 function MemberDetails() {
   const navigate = useNavigate();
   const [Members, setMembers] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  // Add missing state for openDateDialog
+  const [openDateDialog, setOpenDateDialog] = useState(false);
+  const [openDateRangePicker, setOpenDateRangePicker] = useState(false);
 
+  // Date range state: null means no filter, otherwise {startDate, endDate, key}
+  const [dateRange, setDateRange] = useState(null);
   // Dialog state
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -67,7 +74,44 @@ function MemberDetails() {
     { field: "name", headerName: "ಶ್ರೀಮತಿ / ಶ್ರೀ", width: 150 },
     { field: "nickname", headerName: "Nick name", width: 150 },
     { field: "membershipType", headerName: "ಸದಸ್ಯರ ನಮೂನೆ", width: 150 },
-    { field: "status", headerName: "ಸದಸ್ಯರ ಸ್ಥಿತಿ", width: 130 },
+    // { field: "status", headerName: "ಸದಸ್ಯರ ಸ್ಥಿತಿ", width: 130 },
+    {
+      field: "status",
+      headerName: "ಸದಸ್ಯರ ಸ್ಥಿತಿ",
+      width: 150,
+      renderCell: (params) => {
+        const status = params.value;  // this is the status string
+        // Decide color based on status (if needed)
+        let bgColor = "#34C85A"; // default green, you can adjust
+        let textColor = "#ffffff";
+        if (status === "ನಿಷ್ಕ್ರಿಯ") {
+          bgColor = "#34C85A";  // e.g. yellow/amber for “inactive”
+          textColor = "#ffffff";
+        } else if (status === "ಮೃತ") {
+          bgColor = "#34C85A";  // red, for example
+          textColor = "#ffffff";
+        }
+
+        return (
+          <Box
+            component="span"
+            sx={{
+              backgroundColor: "#34C85A",
+              color: "#FFFFFF",
+              px: 1,
+              py: 0.6,
+              borderRadius: "2px",
+              width: "fit-content",
+              fontSize: "12px",
+              fontWeight: "500",
+              textAlign: "center",
+            }}
+          >
+            {status}
+          </Box>
+        );
+      },
+    },
     { field: "date", headerName: "ನೊಂದಣಿ  ದಿನಾಂಕ", width: 150 },
     { field: "mobile", headerName: "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ", width: 150 },
     { field: "amount", headerName: "ಮೊಬಲಾಗು ", width: 150 },
@@ -87,7 +131,7 @@ function MemberDetails() {
             setOpenDialog(true);
           }}
         >
-          <DeleteIcon  />ಅಳಿಸಿ
+          <DeleteIcon />ಅಳಿಸಿ
         </IconButton>
       ),
     },
@@ -111,7 +155,7 @@ function MemberDetails() {
     setSelectedIndex(null);
   };
 
-  // Filter + Search
+  // Filter + Search + Date Range
   const filteredMembers = Members.filter((m) => {
     const matchSearch =
       m.formData?.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -120,7 +164,18 @@ function MemberDetails() {
 
     const matchStatus = statusFilter === "all" ? true : m.status === statusFilter;
 
-    return matchSearch && matchStatus;
+    // Only filter by date if a range is selected
+    let matchDate = true;
+    if (dateRange && dateRange.startDate && dateRange.endDate) {
+      const memberDate = new Date(m.formData?.date);
+      // Remove time part for comparison
+      const start = new Date(dateRange.startDate);
+      const end = new Date(dateRange.endDate);
+      start.setHours(0,0,0,0);
+      end.setHours(23,59,59,999);
+      matchDate = memberDate >= start && memberDate <= end;
+    }
+    return matchSearch && matchStatus && matchDate;
   });
 
   // Convert Members into DataGrid rows
@@ -129,17 +184,17 @@ function MemberDetails() {
     index: i,
     name: member.formData?.name || "",
     nickname: member.formData?.nickname || "",
-    membershipType:member.membershipType || "",
+    membershipType: member.membershipType || "",
     status: member.status || "",
     date: member.formData?.date || "",
     mobile: member.formData?.mobile || "",
-    amount:(member.entries?.length || 0) > 0
-    ? member.entries.map((entry) => `₹${entry.payment}`).join(", ")
-    : "—",
+    amount: (member.entries?.length || 0) > 0
+      ? member.entries.map((entry) => `₹${entry.payment}`).join(", ")
+      : "—",
     payment:
-  (member.entries?.length || 0) > 0
-    ? member.entries.map((entry) => entry.paymentType).join(", ")
-    : "—",
+      (member.entries?.length || 0) > 0
+        ? member.entries.map((entry) => entry.paymentType).join(", ")
+        : "—",
 
     address: member.formData?.address || "",
   }));
@@ -317,8 +372,17 @@ function MemberDetails() {
               <MenuItem value="ನಿಷ್ಕ್ರಿಯ">ನಿಷ್ಕ್ರಿಯ</MenuItem>
               <MenuItem value="ಮೃತ">ಮೃತ</MenuItem>
             </TextField>
-            <TextField type="date" size="small" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
-            <Button variant="outlined">Download</Button>
+            <Button
+              variant="outlined"
+              color="#1F1F1F"
+              size="hug"
+              onClick={() => setOpenDateDialog(true)}
+            >
+              {dateRange && dateRange.startDate && dateRange.endDate
+                ? `${dateRange.startDate.toLocaleDateString()} - ${dateRange.endDate.toLocaleDateString()}`
+                : 'Date Range'}
+            </Button>
+            <Button variant="outlined" backgroundColor="#ffff" color="#072E77">Download</Button>
           </div>
         </div>
 
@@ -346,6 +410,28 @@ function MemberDetails() {
           </Button>
           <Button onClick={deleteMember} color="error">
             ಅಳಿಸು
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* Date Range Dialog */}
+      <Dialog open={openDateDialog} onClose={() => setOpenDateDialog(false)}>
+        <DialogTitle>ತಾರೀಖಿನ ವ್ಯಾಪ್ತಿ ಆಯ್ಕೆಮಾಡಿ</DialogTitle>
+        <DialogContent>
+          <DateRangePicker
+            ranges={dateRange ? [dateRange] : [{ startDate: new Date(), endDate: new Date(), key: 'selection' }]}
+            onChange={(item) => setDateRange(item.selection)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setDateRange(null); setOpenDateDialog(false); }} color="primary">
+            Clear
+          </Button>
+          <Button
+            onClick={() => setOpenDateDialog(false)}
+            variant="contained"
+            style={{ backgroundColor: "#072E77", color: "#fff" }}
+          >
+            ಅನ್ವಯಿಸು
           </Button>
         </DialogActions>
       </Dialog>

@@ -155,7 +155,7 @@ export default function CustomPage() {
           <Typography variant="h6">
             <b>ಪುಸ್ತಕ ದಾಸ್ತಾನು</b>
           </Typography>
-          <Button variant="contained" color="primary" onClick={handleAdd}>
+          <Button variant="contained" style={{ backgroundColor: "#072E77" }} onClick={handleAdd}>
             ಹೊಸ ಪುಸ್ತಕ ಸೇರಿಸಿ +
           </Button>
         </Box>

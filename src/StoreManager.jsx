@@ -152,7 +152,7 @@ export default function CustomPage() {
           <Typography variant="h6">
             <b>ಅಂಗಡಿಯ ನಿರ್ವಾಹಕರ ಹೆಸರು</b>
           </Typography>
-          <Button variant="contained" color="primary" onClick={handleAdd}>
+          <Button variant="contained" style={{ backgroundColor: "#072E77" }} onClick={handleAdd}>
             ಹೊಸ ಅಂಗಡಿಯ ನಿರ್ವಾಹಕರ ಹೆಸರು +
           </Button>
         </Box>

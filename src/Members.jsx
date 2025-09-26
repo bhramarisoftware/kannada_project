@@ -19,6 +19,7 @@ function Members() {
 
   const [openBackDialog, setOpenBackDialog] = useState(false);
   const [openCancelDialog, setOpenCancelDialog] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
     mobile: "",
@@ -33,6 +34,83 @@ function Members() {
     date: "",
     endDate: ""
   });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+ 
+  const validate = () => {
+    const newErrors = {};
+// Start Date
+  if (!formData.date) newErrors.date = "ದಿನಾಂಕ ಅಗತ್ಯವಿದೆ";
+ 
+  // End Date
+  if (!formData.endDate) newErrors.endDate = "ಅಂತಿಮ ದಿನಾಂಕ ಅಗತ್ಯವಿದೆ";
+ 
+    if (!formData.mobile) {
+      newErrors.mobile = "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ಅಗತ್ಯವಿದೆ";
+    } else if (!/^\d{10}$/.test(formData.mobile)) {
+      newErrors.mobile = "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ 10 ಅಂಕಿಗಳಲ್ಲಿರಬೇಕು";
+    }
+ 
+    if (!formData.name) {
+      newErrors.name = "ಹೆಸರು ಅಗತ್ಯವಿದೆ";
+    }
+    if (!formData.nickname) newErrors.nickname = "ಉಪಹೆಸರು ಅಗತ್ಯವಿದೆ";
+ 
+ 
+    if (!formData.email) {
+      newErrors.email = "Email ಅಗತ್ಯವಿದೆ";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "ಮಾನ್ಯ Email ನಮೂದಿಸಿ";
+    }
+   // PAN validation
+if (!formData.pan) {
+  newErrors.pan = "PAN ಕಡ್ಡಾಯವಾಗಿದೆ";
+} else if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.pan)) {
+  newErrors.pan = "ಮಾನ್ಯ PAN ನಮೂದಿಸಿ (ಊದಾ: ABCDE1234F)";
+}
+ 
+ // Aadhaar validation
+if (!formData.aadhaar) {
+  newErrors.aadhaar = "ಆಧಾರ್ ಸಂಖ್ಯೆ ಕಡ್ಡಾಯವಾಗಿದೆ";
+} else if (!/^\d{12}$/.test(formData.aadhaar)) {
+  newErrors.aadhaar = "ಮಾನ್ಯ 12 ಅಂಕಿಗಳ ಆಧಾರ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ";
+}
+ 
+if (!formData.dob) newErrors.dob = "ಜನನ ದಿನಾಂಕ ಅಗತ್ಯವಿದೆ";
+    if (!formData.address) {
+      newErrors.address = "ವಿಳಾಸ ಅಗತ್ಯವಿದೆ";
+    }
+   
+ 
+ 
+    entries.forEach((entry, index) => {
+    if (!entry.payment) {
+      newErrors[`payment_${index}`] = "ಮೊಬಲಾಗು ಅಗತ್ಯವಿದೆ";
+    }
+    if (!entry.paymentType) {
+      newErrors[`paymentType_${index}`] = "ಹಣ ಸ್ವೀಕರಿಸುವ ಪ್ರಕಾರ ಅಗತ್ಯವಿದೆ";
+    }
+    if ((entry.paymentType === "Cheque" || entry.paymentType === "DD") && !entry.cheque) {
+      newErrors[`cheque_${index}`] = `${entry.paymentType} ಸಂಖ್ಯೆ ಅಗತ್ಯವಿದೆ`;
+    }
+    if (!entry.receipt) {
+      newErrors[`receipt_${index}`] = "ರಸೀದಿ ಸಂಖ್ಯೆ ಅಗತ್ಯವಿದೆ";
+    }
+    if (!entry.deposit) {
+      newErrors[`deposit_${index}`] = "ಜಮಾ ವಿವರ ಅಗತ್ಯವಿದೆ";
+    }
+  });
+ 
+ 
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   useEffect(() => {
     const index = localStorage.getItem("editMemberIndex");
@@ -52,12 +130,10 @@ function Members() {
     }
   }, []);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!validate()) return;
 
     const newMember = { membershipType, status, formData, entries };
     let existingMembers = JSON.parse(localStorage.getItem("membersList")) || [];
@@ -116,23 +192,23 @@ function Members() {
                 <button type="button" className={membershipType === "ವಾರ್ಷಿಕ" ? "active" : ""} onClick={() => setMembershipType("ವಾರ್ಷಿಕ")}>ವಾರ್ಷಿಕ</button>
               </div>
 
-              <TextField style={{ marginLeft: "560px" }} type="date" name="date" label="ದಿನಾಂಕ" value={formData.date || ""} onChange={handleChange} size="small" InputLabelProps={{ shrink: true }} />
-              <TextField label="ಅಂತಿಮ ದಿನಾಂಕ" name="endDate" type="date" value={formData.endDate || ""} onChange={handleChange} size="small" InputLabelProps={{ shrink: true }} />
+              <TextField  style={{ marginLeft: "560px" }} type="date" name="date" label="ದಿನಾಂಕ" value={formData.date || ""} onChange={handleChange} size="small" InputLabelProps={{ shrink: true }} error={!!errors.date} helperText={errors.date} />
+              <TextField  label="ಅಂತಿಮ ದಿನಾಂಕ" name="endDate" type="date" value={formData.endDate || ""} onChange={handleChange} size="small" InputLabelProps={{ shrink: true }} error={!!errors.endDate} helperText={errors.endDate} />
             </div>
 
             {/* Basic details */}
             <div className="members-row members-row-2">
-              <TextField required style={{ width: "320px" }} name="mobile" label="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ" value={formData.mobile || ""} onChange={(e) => setFormData({ ...formData, mobile: e.target.value.replace(/\D/g, "") })} size="small" inputProps={{maxLength:10}} />
-              <TextField required style={{ width: "320px", marginLeft: "5px" }} label="ಹೆಸರು" name="name" value={formData.name || ""} onChange={handleChange} size="small" />
-              <TextField style={{ width: "320px", marginLeft: "5px" }} label="Nickname" name="nickname" value={formData.nickname || ""} onChange={handleChange} size="small" />
-              <TextField style={{ width: "320px", marginLeft: "5px" }} label="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ (ಬೇಕಾದಲ್ಲಿ)" name="altMobile" value={formData.altMobile || ""} onChange={handleChange} size="small" inputProps={{ maxLength: 10 }} />
+              <TextField  style={{ width: "320px" }} name="mobile" label="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ" value={formData.mobile || ""} onChange={(e) => setFormData({ ...formData, mobile: e.target.value.replace(/\D/g, "") })} size="small" inputProps={{maxLength:10}} error={!!errors.mobile} helperText={errors.mobile} />
+              <TextField style={{ width: "320px", marginLeft: "5px" }} label="ಹೆಸರು" name="name" value={formData.name || ""} onChange={handleChange} size="small" error={!!errors.name} helperText={errors.name} />
+              <TextField  style={{ width: "320px", marginLeft: "5px" }} label="Nickname" name="nickname" value={formData.nickname || ""} onChange={handleChange} size="small" error={!!errors.nickname} helperText={errors.nickname} />
+              <TextField   style={{ width: "320px", marginLeft: "5px" }} label="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ (ಬೇಕಾದಲ್ಲಿ)" name="altMobile" value={formData.altMobile || ""} onChange={handleChange} size="small" inputProps={{ maxLength: 10 }} error={!!errors.altMobile} helperText={errors.altMobile} />
             </div>
 
             <div className="members-row members-row-3">
-              <TextField style={{ width: "320px" }} label="Email" name="email" type="email" value={formData.email || ""} onChange={handleChange} size="small" />
-              <TextField style={{ width: "320px", marginLeft: "5px" }} label="ಜನನ ದಿನಾಂಕ" name="dob" type="date" value={formData.dob || ""} onChange={handleChange} size="small" InputLabelProps={{ shrink: true }} />
-              <TextField style={{ width: "320px", marginLeft: "5px" }} label="PAN No." name="pan" value={formData.pan || ""} onChange={handleChange} size="small" />
-              <TextField style={{ width: "320px", marginLeft: "5px" }} label="Aadhaar No." name="aadhaar" value={formData.aadhaar || ""} onChange={handleChange} size="small" />
+              <TextField   style={{ width: "320px" }} label="Email" name="email" type="email" value={formData.email || ""} onChange={handleChange} size="small"  error={!!errors.email} helperText={errors.email} />
+              <TextField   style={{ width: "320px", marginLeft: "5px" }} label="ಜನನ ದಿನಾಂಕ" name="dob" type="date" value={formData.dob || ""} onChange={handleChange} size="small" InputLabelProps={{ shrink: true }}  error={!!errors.dob} helperText={errors.dob} />
+              <TextField   style={{ width: "320px", marginLeft: "5px" }} label="PAN No" name="pan" value={formData.pan || ""} onChange={handleChange} size="small"  error={!!errors.pan} helperText={errors.pan} />
+              <TextField   style={{ width: "320px", marginLeft: "5px" }} label="Aadhaar No" name="aadhaar" value={formData.aadhaar || ""} onChange={handleChange} size="small"  error={!!errors.aadhaar} helperText={errors.aadhaar} />
             </div>
 
             {/* Status & address */}
@@ -143,7 +219,7 @@ function Members() {
                   <button key={s} type="button" className={status === s ? "active" : ""} onClick={() => setStatus(s)}>{s}</button>
                 ))}
               </div>
-              <TextField style={{ width: "985px" }} label="ವಿಳಾಸ" name="address" value={formData.address || ""} onChange={handleChange} size="small" />
+              <TextField style={{ width: "985px" }} label="ವಿಳಾಸ" name="address" value={formData.address || ""} onChange={handleChange} size="small" error={!!errors.address} helperText={errors.address} />
             </div>
 
             {/* Payment section */}
@@ -158,13 +234,12 @@ function Members() {
               <div key={index} className="members-payment-block">
                 <div className="members-row members-payment-row1">
                   <TextField label="ಮೊಬಲಾಗು " value={entry.payment} onChange={(e) => { const updated = [...entries]; updated[index].payment = e.target.value; setEntries(updated); }} size="small"
-                    style={{ marginLeft: "5px", width: "350px" }} />
+                    style={{ marginLeft: "5px", width: "350px" }} error={!!errors[`payment_${index}`]} helperText={errors[`payment_${index}`]} />
                   <TextField style={{ width: "350px", marginLeft: "5px" }} label="ಹಣ ಸ್ವೀಕರಿಸುವ ಪ್ರಕಾರ"
                     select
                     value={entry.paymentType}
                     onChange={(e) => { const updated = [...entries]; updated[index].paymentType = e.target.value; setEntries(updated); }}
-                    size="small"
-                  >
+                    size="small" error={!!errors[`paymentType_${index}`]} helperText={errors[`paymentType_${index}`]} >
                     <MenuItem value="Cash">ನಗದು</MenuItem>
                     <MenuItem value="Online">Online </MenuItem>
                     <MenuItem value="ಕರ್ನಾಟಕ ಬ್ಯಾಂಕ್ -  8164">ಕರ್ನಾಟಕ ಬ್ಯಾಂಕ್ -  8164</MenuItem>
@@ -183,16 +258,15 @@ function Members() {
                         updated[index].cheque = e.target.value;
                         setEntries(updated);
                       }}
-                      size="small"
-                    />
+                      size="small" error={!!errors[`cheque_${index}`]} helperText={errors[`cheque_${index}`]}  />
                   )}
-                  <TextField style={{ width: "350px", marginLeft: "5px" }} label="ರಸೀದಿ ಸಂಖ್ಯೆ" value={entry.receipt} onChange={(e) => { const updated = [...entries]; updated[index].receipt = e.target.value; setEntries(updated); }} size="small" />
+                  <TextField style={{ width: "350px", marginLeft: "5px" }} label="ರಸೀದಿ ಸಂಖ್ಯೆ" value={entry.receipt} onChange={(e) => { const updated = [...entries]; updated[index].receipt = e.target.value; setEntries(updated); }} size="small" error={!!errors[`receipt_${index}`]} helperText={errors[`receipt_${index}`]} />
                 </div>
 
                 <div className="members-row members-payment-row2">
-                  <TextField label="ಜಮಾ ವಿವರ" value={entry.deposit} onChange={(e) => { const updated = [...entries]; updated[index].deposit = e.target.value; setEntries(updated); }} size="small" style={{ width: "13200px", }} />
+                  <TextField label="ಜಮಾ ವಿವರ" value={entry.deposit} onChange={(e) => { const updated = [...entries]; updated[index].deposit = e.target.value; setEntries(updated); }} size="small" style={{ width: "13200px", }} error={!!errors[`deposit_${index}`]} helperText={errors[`deposit_${index}`]} />
                 </div>
-                <div class="members-mandatory-note">
+                <div className="members-mandatory-note">
                   <p> ದಯವಿಟ್ಟು ಕಡ್ಡಾಯ ಕ್ಷೇತ್ರಗಳನ್ನು ಭರ್ತಿಮಾಡಿ</p>
                 </div>
 
