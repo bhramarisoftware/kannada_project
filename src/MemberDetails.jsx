@@ -360,7 +360,7 @@ function MemberDetails() {
           <div>
             <strong>ಸದಸ್ಯರ ಪಟ್ಟಿ</strong>
             <Typography sx={{ marginTop: 2, marginBottom: 2 }}>
-              ಒಟ್ಟು ಸದಸ್ಯರ ಸಂಖ್ಯೆ - {rows.length}
+              ಒಟ್ಟು ಸದಸ್ಯರ ಸಂಖ್ಯೆ - {filteredMembers.length}
             </Typography>
           </div>
 

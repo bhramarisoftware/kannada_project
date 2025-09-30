@@ -143,7 +143,7 @@ function DonationTable() {
           <div>
             <strong>ಸಹಾಯ ಧನ ನೀಡಿದವರ ಪಟ್ಟಿ</strong>
             <Typography sx={{ marginTop: 2, marginBottom: 2 }}>
-              ಒಟ್ಟು ಸಹಾಯ ಧನ ನೀಡಿದವರ ಸಂಖ್ಯೆ - {rows.length}
+              ಒಟ್ಟು ಸಹಾಯ ಧನ ನೀಡಿದವರ ಸಂಖ್ಯೆ: {filteredRows.length}
             </Typography>
           </div>
 

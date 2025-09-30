@@ -140,8 +140,8 @@ export default function KannadaPage() {
     const finalPayable = totalWithExtra - Number(paymentAmount || 0);
 
     return (
-        <Box sx={{ p: 3, fontFamily: "Arial" }}>
-            {/* Header */}
+        <>
+        {/* Header */}
             <div className="heder">
                 <p>ಬ್ರಹ್ಮಶ್ರೀ ಮಿತ್ತೂರು ಪುರೋಹಿತ ತಿಮ್ಮಯ್ಯ ಭಟ್ಟ ಸಂಪ್ರತಿಷ್ಠಾನ (ರಿ.)</p>
                 <div className="image1">
@@ -154,6 +154,8 @@ export default function KannadaPage() {
                     <img src="./Ellipse 40.png" alt="profile" />
                 </div>
             </div>
+        <Box sx={{ p: 3, fontFamily: "Arial" }}>
+            
 
             {/* Title */}
             <div
@@ -524,5 +526,6 @@ export default function KannadaPage() {
                 </DialogActions>
             </Dialog>
         </Box>
+        </>
     );
 }
