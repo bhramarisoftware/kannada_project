@@ -74,30 +74,24 @@ function MemberDetails() {
     { field: "name", headerName: "ಶ್ರೀಮತಿ / ಶ್ರೀ", width: 150 },
     { field: "nickname", headerName: "Nick name", width: 150 },
     { field: "membershipType", headerName: "ಸದಸ್ಯರ ನಮೂನೆ", width: 150 },
-    // { field: "status", headerName: "ಸದಸ್ಯರ ಸ್ಥಿತಿ", width: 130 },
     {
       field: "status",
       headerName: "ಸದಸ್ಯರ ಸ್ಥಿತಿ",
       width: 150,
       renderCell: (params) => {
-        const status = params.value;  // this is the status string
-        // Decide color based on status (if needed)
-        let bgColor = "#34C85A"; // default green, you can adjust
+        const status = params.value;
+        let bgColor = "#34C85A";
         let textColor = "#ffffff";
-        if (status === "ನಿಷ್ಕ್ರಿಯ") {
-          bgColor = "#34C85A";  // e.g. yellow/amber for “inactive”
-          textColor = "#ffffff";
-        } else if (status === "ಮೃತ") {
-          bgColor = "#34C85A";  // red, for example
+        if (status === "ನಿಷ್ಕ್ರಿಯ" || status === "ಮೃತ") {
+          bgColor = "#34C85A";
           textColor = "#ffffff";
         }
-
         return (
           <Box
             component="span"
             sx={{
-              backgroundColor: "#34C85A",
-              color: "#FFFFFF",
+              backgroundColor: bgColor,
+              color: textColor,
               px: 1,
               py: 0.6,
               borderRadius: "2px",
@@ -116,7 +110,7 @@ function MemberDetails() {
     { field: "mobile", headerName: "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ", width: 150 },
     { field: "amount", headerName: "ಮೊಬಲಾಗು ", width: 150 },
     { field: "payment", headerName: "ನಗದು ವಿವರ", width: 200 },
-    // { field: "address", headerName: "ನಗರ", width: 200 },
+    // Add other fields as needed
     {
       field: "actions",
       headerName: "ಕ್ರಿಯೆಗಳು",
@@ -137,23 +131,72 @@ function MemberDetails() {
     },
   ];
 
-  // Load members from localStorage
-  useEffect(() => {
-    const storedMembers = JSON.parse(localStorage.getItem("membersList")) || [];
-    setMembers(storedMembers);
-  }, []);
+useEffect(() => {
+  fetch("http://localhost:5000/api/members")
+    .then((res) => {
+      if (!res.ok) throw new Error("Failed to fetch members");
+      return res.json();
+    })
+    .then((data) => {
+      console.log("✅ Raw data from backend:", data);
+
+      const members = Array.isArray(data) ? data : data.members;
+
+      const transformed = members.map((row, i) => {
+        let entries = [];
+        if (typeof row.entries === "string" && row.entries.trim() !== "") {
+          try {
+            entries = JSON.parse(row.entries);
+          } catch {
+            entries = [];
+          }
+        } else if (Array.isArray(row.entries)) {
+          entries = row.entries;
+        }
+
+        return {
+          id: row.id || `LM00${i + 1}`,
+          membershipType: row.membershipType || "",
+          status: row.status || "",
+          formData: {
+            name: row.name || "",
+            nickname: row.nickname || "",
+            mobile: row.mobile || "",
+            altMobile: row.altMobile || "",
+            email: row.email || "",
+            dob: row.dob || "",
+            pan: row.pan || "",
+            aadhaar: row.aadhaar || "",
+            address: row.address || "",
+            date: row.date || "",
+            endDate: row.endDate || "",
+          },
+          entries,
+          index: i,
+        };
+      });
+
+      console.log("✅ Transformed data:", transformed);
+      setMembers(transformed);
+    })
+    .catch((err) => {
+      console.error("❌ Error fetching members:", err);
+    });
+}, []);
+
 
   // Delete a member
-  const deleteMember = () => {
-    if (selectedIndex !== null) {
-      const updated = [...Members];
-      updated.splice(selectedIndex, 1);
-      setMembers(updated);
-      localStorage.setItem("membersList", JSON.stringify(updated));
-    }
-    setOpenDialog(false);
-    setSelectedIndex(null);
-  };
+  const deleteMember = async () => {
+  if (selectedIndex !== null) {
+    await fetch(`http://localhost:5000/api/members/${selectedIndex}`, {
+      method: "DELETE"
+    });
+    setMembers((prev) => prev.filter((_, i) => i !== selectedIndex));
+  }
+  setOpenDialog(false);
+  setSelectedIndex(null);
+};
+
 
   // Filter + Search + Date Range
   const filteredMembers = Members.filter((m) => {
@@ -177,27 +220,62 @@ function MemberDetails() {
     }
     return matchSearch && matchStatus && matchDate;
   });
+  
 
-  // Convert Members into DataGrid rows
-  const rows = filteredMembers.map((member, i) => ({
-    id: `LM00${i + 1}`,
-    index: i,
-    name: member.formData?.name || "",
-    nickname: member.formData?.nickname || "",
+  // // Convert Members into DataGrid rows
+  // const rows = filteredMembers.map((member, i) => ({
+  //   id: `LM00${i + 1}`,
+  //   index: i,
+  //   name: member.formData?.name || "",
+  //   nickname: member.formData?.nickname || "",
+  //   membershipType: member.membershipType || "",
+  //   status: member.status || "",
+  //   date: member.formData?.date || "",
+  //   mobile: member.formData?.mobile || "",
+  //   amount: (member.entries?.length || 0) > 0
+  //     ? member.entries.map((entry) => `₹${entry.payment}`).join(", ")
+  //     : "—",
+  //   payment:
+  //     (member.entries?.length || 0) > 0
+  //       ? member.entries.map((entry) => entry.paymentType).join(", ")
+  //       : "—",
+
+  //   address: member.formData?.address || "",
+  // }));
+  
+// Convert filteredMembers into DataGrid rows
+const rows = filteredMembers
+  .filter((member) => member && member.formData && member.id)
+  .map((member) => ({
+    id: member.id,
+    index: member.index ?? 0,
+    name: member.formData.name || "",
+    nickname: member.formData.nickname || "",
     membershipType: member.membershipType || "",
     status: member.status || "",
-    date: member.formData?.date || "",
-    mobile: member.formData?.mobile || "",
-    amount: (member.entries?.length || 0) > 0
+    date: member.formData.date || "",
+    mobile: member.formData.mobile || "",
+    amount: Array.isArray(member.entries) && member.entries.length > 0
       ? member.entries.map((entry) => `₹${entry.payment}`).join(", ")
       : "—",
-    payment:
-      (member.entries?.length || 0) > 0
-        ? member.entries.map((entry) => entry.paymentType).join(", ")
-        : "—",
-
-    address: member.formData?.address || "",
+    payment: Array.isArray(member.entries) && member.entries.length > 0
+      ? member.entries.map((entry) => entry.paymentType).join(", ")
+      : "—",
+    address: member.formData.address || "",
+    // Add other fields as needed
   }));
+
+console.log("Rows for DataGrid:", rows);
+<Box sx={{ height: 500, width: "100%", mt: 2 }}>
+  <DataGrid
+    rows={rows}
+    columns={columns}
+    initialState={{ pagination: { paginationModel: { pageSize: 5 } } }}
+    pageSizeOptions={[5, 10, 20]}
+    disableRowSelectionOnClick
+    onRowClick={(params) => navigate(`/MemberFullDetails/${params.row.index}`)}
+  />
+</Box>
 
   // Common dropdown render function
   const renderDropdown = (anchorEl, open, handleClose, selected, setSelected) => (
@@ -382,7 +460,7 @@ function MemberDetails() {
                 ? `${dateRange.startDate.toLocaleDateString()} - ${dateRange.endDate.toLocaleDateString()}`
                 : 'Date Range'}
             </Button>
-            <Button variant="outlined" backgroundColor="#ffff" color="#072E77">Download</Button>
+            <Button variant="outlined" backgroundColor="#ffff" color="#072E77"> excle Download</Button>
           </div>
         </div>
 
