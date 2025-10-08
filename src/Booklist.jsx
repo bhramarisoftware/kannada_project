@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataGrid } from "@mui/x-data-grid";
 import {
@@ -17,61 +17,92 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { Margin } from "@mui/icons-material";
 
+
+
+
 function SalesTable() {
   const navigate = useNavigate();
-  // Load sales data from localStorage
-  const [rows, setRows] = useState(() => {
-    const saved = localStorage.getItem("bookSalesList");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        // Defensive: ensure each row has required fields
-        return Array.isArray(parsed)
-          ? parsed.map((row, idx) => ({
-              ...row,
-              id: row.id || idx + 1,
-            }))
-          : [];
-      } catch {
-        return [];
-      }
-    }
-    return [];
-  });
-
-  // Optionally, reload data when returning from BookSales
-  React.useEffect(() => {
-    const saved = localStorage.getItem("bookSalesList");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setRows(Array.isArray(parsed)
-          ? parsed.map((row, idx) => ({
-              ...row,
-              id: row.id || idx + 1,
-            }))
-          : []);
-      } catch {
-        setRows([]);
-      }
-    }
-  }, []);
-  const [search, setSearch] = useState("");
+  const [rows, setRows] = useState([]);
+const [loading, setLoading] = useState(true);
+ const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
-  // Delete row
-  const handleDelete = (id) => {
-    if (window.confirm("ನೀವು ಈ ಸಾಲನ್ನು ಅಳಿಸಲು ಬಯಸುವಿರಾ?")) {
-      setRows(rows.filter((row) => row.id !== id));
+ useEffect(() => {
+  const fetchSales = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/sales");
+      if (!res.ok) throw new Error("Failed to fetch sales");
+      const data = await res.json();
+      setRows(
+        data.map((row) => ({
+          ...row,
+          receiptNo: row.receiptNumber,
+          count: row.items.length,
+          amount: row.totalAmount,
+          mode: row.mode,
+          customer: row.name,
+        }))
+      );
+    } catch (err) {
+      console.error("Error fetching sales:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Edit row
-  const handleEdit = (id) => {
-    alert(`Edit row with ID: ${id}`);
-  };
+  fetchSales();
+}, []);
+ 
+
+  // Delete row
+  const handleDelete = async (id) => {
+  if (!window.confirm("ನೀವು ಈ ಸಾಲನ್ನು ಅಳಿಸಲು ಬಯಸುವಿರಾ?")) return;
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/sales/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!res.ok) throw new Error("Failed to delete sale");
+
+    // Remove from frontend state
+    setRows(rows.filter((row) => row.id !== id));
+    alert("Sale deleted successfully!");
+  } catch (err) {
+    console.error("Error deleting sale:", err);
+    alert("Failed to delete sale");
+  }
+};
+
+
+  const handleEdit = async (id) => {
+  const newCustomerName = prompt("Enter new customer name:");
+  if (!newCustomerName) return;
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/sales/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newCustomerName }),
+    });
+
+    if (!res.ok) throw new Error("Failed to update sale");
+
+    const updatedSale = await res.json();
+    setRows(
+      rows.map((row) =>
+        row.id === id ? { ...row, customer: updatedSale.name } : row
+      )
+    );
+    alert("Sale updated successfully!");
+  } catch (err) {
+    console.error("Error updating sale:", err);
+    alert("Failed to update sale");
+  }
+};
+
 
   // Add new row
   const handleAdd = () => {

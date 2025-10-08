@@ -480,17 +480,35 @@ export default function KannadaPage() {
                         <Button
                             onClick={() => {
                                 // Prepare sales data for Booklist
-                                const salesData = rows.map((row) => ({
-                                    id: row.id,
-                                    receiptNo: otherId || `R${row.id}`,
-                                    date: date,
-                                    count: row.quantity,
-                                    amount: `₹ ${row.total}`,
-                                    mode: place,
-                                    customer: name,
-                                }));
-                                localStorage.setItem("bookSalesList", JSON.stringify(salesData));
-                                navigate("/Booklist");
+                                const payload = {
+  mobile: mobileNumber,
+  name: name,
+  date: date,
+  paymentMethod: paymentMethod,
+  discountType: paymentMethod,
+  discountAmount: paymentAmount,
+  totalAmount: totalWithExtra,
+  finalPayable: finalPayable,
+  receiptNumber: otherId,
+  mode: place,
+  chequeNumber: chequeNumber,
+  aadhar: aadhar,
+  pan: pan,
+  items: rows,
+};
+
+fetch("http://localhost:5000/api/sales", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(payload),
+})
+  .then((res) => res.json())
+  .then((data) => {
+    console.log("✅ Sale saved:", data);
+    navigate("/Booklist");
+  })
+  .catch((err) => console.error("❌ Error saving sale:", err));
+
                             }}
                             variant="contained"
                             color="warning"
