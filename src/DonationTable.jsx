@@ -27,29 +27,38 @@ function DonationTable() {
   const [rows, setRows] = useState([]);
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("");
-  // Date range state: null means no filter, otherwise {startDate, endDate, key}
   const [dateRange, setDateRange] = useState(null);
   const [openDateDialog, setOpenDateDialog] = useState(false);
 
-  // Load donations from localStorage
-  const loadDonations = () => {
-    const stored = JSON.parse(localStorage.getItem("donationsList")) || [];
-    const formatted = stored.map((d, index) => ({
-      id: index + 1,
-      ...d,
-    }));
-    setRows(formatted);
-  };
-
+  // Fetch donations from backend API
   useEffect(() => {
-    loadDonations();
+    const fetchDonations = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/donations");
+        if (!response.ok) throw new Error("Failed to fetch donations");
+        const data = await response.json();
+        // Add id field if not present
+        const formatted = data.map((d, index) => ({
+          id: d.id || index + 1,
+          ...d,
+        }));
+        setRows(formatted);
+      } catch (error) {
+        console.error("Error fetching donations:", error);
+        setRows([]);
+      }
+    };
+    fetchDonations();
   }, []);
 
-  // Delete handler
-  const handleDelete = (id) => {
-    const updated = rows.filter((row) => row.id !== id);
-    setRows(updated);
-    localStorage.setItem("donationsList", JSON.stringify(updated));
+  // Delete handler (optional: update to call backend DELETE endpoint)
+  const handleDelete = async (id) => {
+    try {
+      await fetch(`http://localhost:5000/api/donations/${id}`, { method: "DELETE" });
+      setRows((prev) => prev.filter((row) => row.id !== id));
+    } catch (error) {
+      alert("Failed to delete donation");
+    }
   };
 
   // Filtered rows

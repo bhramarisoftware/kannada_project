@@ -99,9 +99,9 @@
 .members-toggle-status button {
   padding: 8px 16px;
   border: 1px solid #060606;
-  background-color: #fff;
+  background-color: #F0F2F3;
   color: #0e0e0e;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
 }
 .members-toggle-membership button.active,
@@ -182,8 +182,15 @@
   color: #072E77;
 }
 .members-save-btn {
+  
   background-color: #FF4A00;
   color: #FFFFFF;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  &:hover {
+    background-color: #072E77;
+    
+  }
 }
 .members-form-card {
   width: 1340px;
@@ -224,4 +231,12 @@
   margin-top: -10px;
   margin-bottom: 10px;
   margin-left: 5px;
+}
+.delete-entry-btn {
+  background: none;
+  border: 1.5px solid red;
+  color: red;
+  cursor: pointer;
+  font-size: 18px;
+  margin-top: 10px;
 }

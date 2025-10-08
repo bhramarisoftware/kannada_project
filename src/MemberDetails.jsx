@@ -28,6 +28,7 @@ function MemberDetails() {
   const [Members, setMembers] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
   // Add missing state for openDateDialog
   const [openDateDialog, setOpenDateDialog] = useState(false);
   const [openDateRangePicker, setOpenDateRangePicker] = useState(false);
@@ -206,6 +207,7 @@ useEffect(() => {
       m.formData?.mobile?.includes(search);
 
     const matchStatus = statusFilter === "all" ? true : m.status === statusFilter;
+    const matchType = typeFilter === "all" ? true : m.membershipType === typeFilter;
 
     // Only filter by date if a range is selected
     let matchDate = true;
@@ -218,7 +220,7 @@ useEffect(() => {
       end.setHours(23,59,59,999);
       matchDate = memberDate >= start && memberDate <= end;
     }
-    return matchSearch && matchStatus && matchDate;
+    return matchSearch && matchStatus && matchType && matchDate;
   });
   
 
@@ -449,6 +451,11 @@ console.log("Rows for DataGrid:", rows);
               <MenuItem value="ಸಕ್ರಿಯ">ಸಕ್ರಿಯ</MenuItem>
               <MenuItem value="ನಿಷ್ಕ್ರಿಯ">ನಿಷ್ಕ್ರಿಯ</MenuItem>
               <MenuItem value="ಮೃತ">ಮೃತ</MenuItem>
+            </TextField>
+              <TextField select size="small" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} sx={{ minWidth: 180 }}>
+              <MenuItem value="all">ಸದಸ್ಯರ ನಮೂನೆ</MenuItem>
+              <MenuItem value="ವಾರ್ಷಿಕ">ವಾರ್ಷಿಕ</MenuItem>
+              <MenuItem value="ಆಜೀವ">ಆಜೀವ</MenuItem>
             </TextField>
             <Button
               variant="outlined"

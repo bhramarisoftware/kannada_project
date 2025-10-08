@@ -19,7 +19,7 @@ function AddDonation() {
 
   const [formData, setFormData] = useState({
     mobile: "",
-    name: "",
+    donorName: "", // <-- changed from name
     nickname: "",
     altMobile: "",
     email: "",
@@ -65,7 +65,7 @@ function AddDonation() {
     } else if (!/^\d{10}$/.test(formData.mobile)) {
       newErrors.mobile = "ಮಾನ್ಯ 10 ಅಂಕೆಗಳ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ";
     }
-    if (!formData.name) newErrors.name = "ಹೆಸರು ಕಡ್ಡಾಯವಾಗಿದೆ";
+    if (!formData.donorName) newErrors.donorName = "ಹೆಸರು ಕಡ್ಡಾಯವಾಗಿದೆ"; // <-- changed from name
     if (!formData.nickname) newErrors.nickname = "Nickname ಕಡ್ಡಾಯವಾಗಿದೆ";
     if (!formData.dob) newErrors.dob = "ಜನನ ದಿನಾಂಕ ಕಡ್ಡಾಯವಾಗಿದೆ";
     // PAN validation
@@ -100,36 +100,36 @@ function AddDonation() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return; // stop if errors
+    if (!validateForm()) return;
 
-    // Flatten formData and first entry for table display
-    const firstEntry = entries[0] || {};
+    // Send all fields inside formData, as backend expects
     const newDonation = {
-      donorName: formData.name,
-      date: formData.date,
-      member: formData.searchMemberNumber,
-      nickname: formData.nickname,
-      mobile: formData.mobile,
-      fund: firstEntry.fund || "",
-      payment: firstEntry.payment || "",
-      details: firstEntry.paymentType || "",
-      deposit: firstEntry.deposit || "",
-      receipt: firstEntry.receipt || "",
+      formData: {
+        ...formData,
+        searchMemberNumber: formData.searchMemberNumber || "",
+      },
       entries,
-      formData // keep full formData for details page if needed
     };
-    let existingDonations = JSON.parse(localStorage.getItem("donationsList")) || [];
 
-    if (editIndex !== null) {
-      existingDonations[editIndex] = newDonation;
-    } else {
-      existingDonations.push(newDonation);
+    try {
+      const response = await fetch("http://localhost:5000/api/donations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(newDonation)
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to add donation");
+      }
+
+      navigate("/DonationTable");
+    } catch (error) {
+      alert("Error adding donation: " + error.message);
     }
-
-    localStorage.setItem("donationsList", JSON.stringify(existingDonations));
-    navigate("/DonationTable");
   };
 
 
@@ -144,7 +144,7 @@ function AddDonation() {
       if (donation) {
         setFormData(donation.formData || {
           mobile: donation.mobile || "",
-          name: donation.donorName || "",
+          donorName: donation.donorName || "",
           nickname: donation.nickname || "",
           altMobile: donation.altMobile || "",
           email: donation.email || "",
@@ -273,12 +273,12 @@ return (
             <TextField
               style={{ width: "320px", marginLeft: "5px" }}
               label="ಹೆಸರು"
-              name="name"
-              value={formData.name || ""}
+              name="donorName" // <-- changed from name
+              value={formData.donorName || ""} // <-- changed from name
               onChange={handleChange}
               size="small"
-              error={!!errors.name}
-              helperText={errors.name}
+              error={!!errors.donorName}
+              helperText={errors.donorName}
             />
             <TextField
               style={{ width: "320px", marginLeft: "5px" }}
@@ -516,7 +516,7 @@ return (
               setOpenCancelDialog(false);
               setFormData({
                 mobile: "",
-                name: "",
+                donorName: "",
                 nickname: "",
                 altMobile: "",
                 email: "",
