@@ -37,7 +37,7 @@ function DonationTable() {
         const response = await fetch("http://localhost:5000/api/donations");
         if (!response.ok) throw new Error("Failed to fetch donations");
         const data = await response.json();
-        // Add id field if not present
+        console.log("Fetched Donations:", data);
         const formatted = data.map((d, index) => ({
           id: d.id || index + 1,
           ...d,
@@ -49,23 +49,33 @@ function DonationTable() {
       }
     };
     fetchDonations();
+
   }, []);
 
   // Delete handler (optional: update to call backend DELETE endpoint)
   const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("ನೀವು ಈ ದಾನವನ್ನು ಅಳಿಸಲು ಬಯಸುವಿರಾ?");
+    if (!confirmDelete) return;
+
     try {
-      await fetch(`http://localhost:5000/api/donations/${id}`, { method: "DELETE" });
+      const response = await fetch(`http://localhost:5000/api/donations/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) throw new Error("Failed to delete donation");
+
       setRows((prev) => prev.filter((row) => row.id !== id));
+      alert("Donation deleted successfully!");
     } catch (error) {
-      alert("Failed to delete donation");
+      console.error("Error deleting donation:", error);
+      alert("Failed to delete donation. Please try again.");
     }
   };
-
   // Filtered rows
   const filteredRows = rows.filter((row) => {
     const matchesSearch =
       row.donorName?.toLowerCase().includes(search.toLowerCase()) ||
-      row.nickName?.toLowerCase().includes(search.toLowerCase());
+      row.nickname?.toLowerCase().includes(search.toLowerCase());
 
     const matchesType = filterType ? row.donationType === filterType : true;
 
@@ -75,8 +85,8 @@ function DonationTable() {
       const rowDate = new Date(row.date);
       const start = new Date(dateRange.startDate);
       const end = new Date(dateRange.endDate);
-      start.setHours(0,0,0,0);
-      end.setHours(23,59,59,999);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
       matchesDate = rowDate >= start && rowDate <= end;
     }
     return matchesSearch && matchesType && matchesDate;
@@ -85,13 +95,33 @@ function DonationTable() {
   // Columns
   const columns = [
     { field: "donorName", headerName: "ಶ್ರೀಮತಿ /ಶ್ರೀ", width: 180 },
-    { field: "date", headerName: "ಸ್ವೀಕರಿಸಿದ ದಿನಾಂಕ", width: 120 },
-    { field: "series", headerName: "ಕ್ರಮಾoಕ", width: 150 },
+    {
+      field: "date",
+      headerName: "ಸ್ವೀಕರಿಸಿದ ದಿನಾಂಕ",
+      width: 120,
+      valueGetter: (params) => params.row?.date || ""
+    },
+    { field: "series", headerName: "ಕ್ರಮಾಂಕ", width: 150 },
     { field: "member", headerName: "ಸದಸ್ಯ ಸಂಖ್ಯೆ", width: 150 },
     { field: "nickname", headerName: "Nick name", width: 120 },
-    { field: "fund", headerName: "ನಿಧಿ ವಿವರ", width: 200 },
-    { field: "payment", headerName: "ಮೊಬಲಾಗು", width: 160 },
-    { field: "details", headerName: "ನಗದು ವಿವರ", width: 150 },
+    {
+      field: "fund",
+      headerName: "ನಿಧಿ ವಿವರ",
+      width: 200,
+      renderCell: (params) => params.row?.entries?.[0]?.fund ?? ""
+    },
+    {
+      field: "payment",
+      headerName: "ಮೊಬಲಾಗು",
+      width: 150,
+      renderCell: (params) => params.row?.entries?.[0]?.payment ?? ""
+    },
+    {
+      field: "paymentType",
+      headerName: "ನಗದು ವಿವರ",
+      width: 150,
+      renderCell: (params) => params.row?.entries?.[0]?.paymentType ?? ""
+    },
     { field: "mobile", headerName: "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ", width: 200 },
     {
       field: "actions",
@@ -107,10 +137,14 @@ function DonationTable() {
           }}
         >
           <DeleteIcon /> ಅಳಿಸಿ
-        </IconButton >
+        </IconButton>
       ),
     },
   ];
+
+
+
+
 
   return (
     <>
@@ -127,14 +161,14 @@ function DonationTable() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, backgroundColor: "#f5f5f5", paddingTop: "1%", paddingBottom: "1% " }}>
         <Button
-          style={{ marginRight: 50 }}
+          style={{ marginRight: 'auto' }}
           variant="text"
           onClick={() => navigate(-1)}
           sx={{ textTransform: "none", color: "#000" }}
         >
-          <span style={{ marginRight: 25, }}>←Back</span>
+          <span style={{ marginLeft: 20, fontSize: "18px" }}>&lt;&nbsp;&nbsp; Back</span>
         </Button>
         <Button
           style={{ backgroundColor: '#072E77', color: '#FFFFFF', marginRight: '30px' }}
@@ -145,7 +179,16 @@ function DonationTable() {
           ಹೊಸ ಸಹಾಯ ಧನ +
         </Button>
       </div>
-      <Box sx={{ padding: 3 }}>
+      <Box 
+                  sx={{
+                    border: "2px solid #eae7e7ff",
+                    borderRadius: 2,
+                    p: 2,
+                    mb: 2,
+      
+                    backgroundColor: "#ffffff",
+                  }}
+                >
         {/* Header, Count, and Toolbar in a single line */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%', marginBottom: 2 }}>
 
@@ -189,27 +232,27 @@ function DonationTable() {
               ? `${dateRange.startDate.toLocaleDateString()} - ${dateRange.endDate.toLocaleDateString()}`
               : 'Date Range'}
           </Button>
-      <Dialog open={openDateDialog} onClose={() => setOpenDateDialog(false)}>
-        <DialogTitle>ದಿನಾಂಕ ವ್ಯಾಪ್ತಿ ಆಯ್ಕೆಮಾಡಿ</DialogTitle>
-        <DialogContent>
-          <DateRangePicker
-            ranges={dateRange ? [dateRange] : [{ startDate: new Date(), endDate: new Date(), key: 'selection' }]}
-            onChange={(item) => setDateRange(item.selection)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => { setDateRange(null); setOpenDateDialog(false); }} color="primary">
-            Clear
-          </Button>
-          <Button
-            onClick={() => setOpenDateDialog(false)}
-            variant="contained"
-            style={{ backgroundColor: "#072E77", color: "#fff" }}
-          >
-            ಅನ್ವಯಿಸು
-          </Button>
-        </DialogActions>
-      </Dialog>
+          <Dialog open={openDateDialog} onClose={() => setOpenDateDialog(false)}>
+            <DialogTitle>ದಿನಾಂಕ ವ್ಯಾಪ್ತಿ ಆಯ್ಕೆಮಾಡಿ</DialogTitle>
+            <DialogContent>
+              <DateRangePicker
+                ranges={dateRange ? [dateRange] : [{ startDate: new Date(), endDate: new Date(), key: 'selection' }]}
+                onChange={(item) => setDateRange(item.selection)}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => { setDateRange(null); setOpenDateDialog(false); }} color="primary">
+                Clear
+              </Button>
+              <Button
+                onClick={() => setOpenDateDialog(false)}
+                variant="contained"
+                style={{ backgroundColor: "#072E77", color: "#fff" }}
+              >
+                ಅನ್ವಯಿಸು
+              </Button>
+            </DialogActions>
+          </Dialog>
           <Button variant="outlined" color="#072E77">Download</Button>
         </Box>
 

@@ -4,7 +4,7 @@ import mysql from "mysql2";
 const db = mysql.createConnection({
   host: "localhost",      // your MySQL host
   user: "root",           // MySQL username
-  password: "Shailu$2004", // replace with your root password
+  password: "Mallik$01", // replace with your root password
   database: "kannada_project"     // your database
 });
 

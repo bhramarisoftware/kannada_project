@@ -1,8 +1,8 @@
 .members-header{
   display: flex;
   margin-top: 0px;
-  width: 1400px;
-  height: 79px;
+  width: 100%;
+  height: 100%;
   flex-direction: row;
   color: rgb(85, 79, 250);
   font-family: 'Times New Roman', Times, serif;
@@ -80,7 +80,8 @@
   margin-bottom: 20px;
   margin-top: 10px;
 }
-.members-row input {
+/* Remove styling from Material UI TextField input */
+.members-row input:not(.MuiInputBase-input) {
   flex: 1;
   min-width: 200px;
   padding: 10px;
@@ -89,21 +90,42 @@
   border-radius: 6px;
 }
 
+
 /* Toggle buttons */
 .members-toggle-membership,
 .members-toggle-status {
-  display: flex;
-  gap:0px;
+  display: inline-flex;   /* Keep buttons side-by-side */
+  overflow: hidden;       /* Keeps curve clean */
+  border-radius: 8px;     /* Makes full group rounded */
 }
+
 .members-toggle-membership button,
 .members-toggle-status button {
-  padding: 8px 16px;
-  border: 1px solid #060606;
+  padding: 18px 16px;
+  border: 1px solid #909091;
   background-color: #F0F2F3;
   color: #0e0e0e;
-  border-radius: 4px;
+  border-radius: 0px;
   cursor: pointer;
+  outline: none;
 }
+
+/* Remove the middle border between buttons */
+.members-toggle-membership button:first-child,
+.members-toggle-status button:first-child {
+  border-right: none;
+  border-top-left-radius: 1%;
+  border-bottom-left-radius: 1%;
+}
+
+.members-toggle-membership button:last-child,
+.members-toggle-status button:last-child {
+  border-left: none;
+  border-top-right-radius: 1%;
+  border-bottom-right-radius: 1%;
+}
+
+
 .members-toggle-membership button.active,
 .members-toggle-status button.active {
   background-color: #FF4A00;
@@ -130,11 +152,11 @@
 }
 
 /* Payment rows */
-.members-payment-row1 input,
+/* .members-payment-row1 input,
 .members-payment-row2 input {
   flex: 1;
   min-width: 200px;
-}
+} */
 
 /* Entries list */
 .members-entries-list {
@@ -193,34 +215,32 @@
   }
 }
 .members-form-card {
-  width: 1340px;
-  height: 931px;
+  width: 100%;
+  height: 100%;
   background-color: #FFFFFF;
   align-items: center;
 
 }
-.members-input-date{
+.members-input-date {
   border: 1px solid #ccc;
   border-radius: 6px;
   padding: 10px;
   font-size: 15px;
   width: 150px;
   height: 20px;
-  margin-left: 700px;
-  display: flex;
-  align-items: end;
-  cursor: pointer;
+  /* REMOVE margin-left: 700px; */
 }
-.members-input-enddate{
+
+.members-input-enddate {
   border: 1px solid #ccc;
   border-radius: 6px;
   padding: 10px;
   font-size: 15px;
   width: 150px;
   height: 20px;
-  margin-left: 10px;
-  cursor: pointer;
+  margin-left: 10px;  /* OK to keep spacing */
 }
+
 .members-add-btn:hover {
   background-color: #072E77;
   color: #fff;
@@ -240,3 +260,5 @@
   font-size: 18px;
   margin-top: 10px;
 }
+
+

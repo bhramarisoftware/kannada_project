@@ -8,21 +8,33 @@ import {
   Menu,
   MenuItem,
   Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import "./MemberFullDetails";
 
 const MemberFullDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [data, setData] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [openBackDialog, setOpenBackDialog] = useState(false); // dialog state
 
-  // Load member data from localStorage
   useEffect(() => {
-    const storedMembers = JSON.parse(localStorage.getItem("membersList")) || [];
-    if (storedMembers[id]) {
-      setData(storedMembers[id]);
-    }
+    const fetchMember = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/members/${id}`);
+        if (!res.ok) throw new Error("Failed to fetch member");
+        const data = await res.json();
+        setData(data);
+      } catch (err) {
+        console.error("Error fetching member:", err);
+      }
+    };
+    fetchMember();
   }, [id]);
 
   if (!data) {
@@ -49,189 +61,257 @@ const MemberFullDetails = () => {
         </div>
       </div>
 
-      <div>
-        {/* Back button */}
-        <Button variant="text" onClick={() => navigate(-1)} sx={{ mb: 2 }}>
-          &lt; Back
-        </Button>
-      </div>
+      <div style={{ backgroundColor: "#f5f5f5ff", minHeight: "100vh" }}>
+        <div>
+          {/* Back button opens dialog */}
+          <Button
+            variant="text"
+            onClick={() => setOpenBackDialog(true)}
+            sx={{ fontSize: "18px", fontWeight: 500, color: "black" }}
+          >
+            &lt; &nbsp; Back
+          </Button>
+        </div>
 
-      <div>
-        {/* Title with Edit and Menu Buttons */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, marginRight: 10 }}>
-          <Typography variant="h6" fontWeight="bold" gutterBottom style={{ marginLeft: 40 }}>
-            ವೈಯಕ್ತಿಕ ಮಾಹಿತಿ
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button
-              variant="outlined"
-              onClick={() => {
-                localStorage.setItem("editMemberIndex", id);
-                navigate("/Members ");
+        <Box sx={{ p: 3, maxWidth: "1400px" }}>
+          <Box
+            sx={{
+              bgcolor: "white",
+              p: 1.5,
+              borderRadius: 1,
+              boxShadow: 1,
+              mb: 3,
+              position: "relative",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                mb: 2,
+                marginRight: 10,
               }}
             >
-              Edit
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={(e) => setAnchorEl(e.currentTarget)}
-            >
-              ಹೆಜ್ಜೆ ಆಯ್ಕೆ ▼
-            </Button>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={() => setAnchorEl(null)}
-            >
-              <MenuItem onClick={() => alert("ಸದಸ್ಯರ ಸ್ಥಿತಿ")}>ಸದಸ್ಯರ ಸ್ಥಿತಿ</MenuItem>
-              <MenuItem onClick={() => alert("ಹಣಕಾಸು ಮಾಹಿತಿ")}>ಹಣಕಾಸು ಮಾಹಿತಿ</MenuItem>
-              <MenuItem onClick={() => alert("ಪಾವತಿ ವಿವರ")}>ಪಾವತಿ ವಿವರ</MenuItem>
-            </Menu>
+              <Typography variant="h6" fontWeight="bold">
+                ವೈಯಕ್ತಿಕ ಮಾಹಿತಿ
+              </Typography>
+
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    localStorage.setItem("editMemberIndex", id);
+                    navigate("/Members");
+                  }}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={(e) => setAnchorEl(e.currentTarget)}
+                >
+                  ಹೆಜ್ಜೆ ಆಯ್ಕೆ
+                </Button>
+
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={() => setAnchorEl(null)}
+                >
+                  <MenuItem
+                    onClick={() => {
+                      setAnchorEl(null);
+                      alert("ಆಜೀವ ಸದಸ್ಯರ ಹೆಚ್ಚು ಹಣ — Coming soon!");
+                    }}
+                  >
+                    ಆಜೀವ ಸದಸ್ಯರ ಹೆಚ್ಚು ಹಣ
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      setAnchorEl(null);
+                      navigate("/add-donation");
+                    }}
+                  >
+                    ಹೊಸ ಸಹಾಯ ಧನ
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      setAnchorEl(null);
+                      navigate("/BookSales");
+                    }}
+                  >
+                    ಪುಸ್ತಕ ಮಾರಾಟ
+                  </MenuItem>
+                </Menu>
+              </Box>
+            </Box>
+
+            <hr
+              style={{ width: "100%", marginBottom: "20px", color: "#222B45" }}
+            />
+
+            {/* Member Info Section */}
+            <Grid container spacing={20}>
+              <Grid item xs={12} sm={6} md={3}>
+                <LabelValue label="ಸದಸ್ಯ ಸಂಖ್ಯೆ" value={data.memberNo || "—"} />
+                <LabelValue label="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ" value={data.mobile || "—"} />
+                <LabelValue label="Email" value={data.email || "—"} />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={3}>
+                <LabelValue label="ಸೇರಿದ ದಿನಾಂಕ" value={data.date || "—"} />
+                <LabelValue label="ಶ್ರೀಮತಿ / ಶ್ರೀ " value={data.name || "—"} />
+                <LabelValue label="ಜನನ ದಿನಾಂಕ" value={data.dob || "—"} />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={3}>
+                <LabelValue
+                  label="ಸದಸ್ಯರ ನಮೂನೆ"
+                  value={
+                    <Box
+                      component="span"
+                      sx={{
+                        backgroundColor: "#FF4A00",
+                        color: "#FFFFFF",
+                        px: 1,
+                        py: 0.5,
+                        borderRadius: "4px",
+                      }}
+                    >
+                      {data.membershipType}
+                    </Box>
+                  }
+                />
+                <LabelValue label="Nick name" value={data.nickname || "—"} />
+                <LabelValue label="PAN No" value={data.pan || "—"} />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={3}>
+                <LabelValue
+                  label="ಸದಸ್ಯರ ಸ್ಥಿತಿ"
+                  value={
+                    <Box
+                      component="span"
+                      sx={{
+                        backgroundColor: "#34C85A",
+                        color: "#FFFFFF",
+                        px: 1,
+                        py: 0.5,
+                        borderRadius: "4px",
+                      }}
+                    >
+                      {data.status}
+                    </Box>
+                  }
+                />
+
+                <LabelValue
+                  label="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ  (ಬೇಕಾದಲ್ಲಿ)"
+                  value={data.altMobile || "—"}
+                />
+                <LabelValue label="Aadhaar No." value={data.aadhaar || "—"} />
+              </Grid>
+            </Grid>
+            <Grid>
+              <LabelValue label="ವಿಳಾಸ" value={data.address || "—"} />
+            </Grid>
+          </Box>
+
+          {/* Payment Details */}
+          <Box
+            sx={{
+              bgcolor: "white",
+              p: 3,
+              borderRadius: 2,
+              boxShadow: 1,
+            }}
+          >
+            <Typography variant="h6" fontWeight="bold" gutterBottom>
+              ನಗದು ಮತ್ತು ವಿವರ
+            </Typography>
+            <hr
+              style={{ width: "100%", marginBottom: "20px", color: "#000" }}
+            />
+
+            {data.entries && data.entries.length > 0 ? (
+              data.entries.map((entry, idx) => (
+                <Box key={idx} sx={{ mb: 3 }}>
+                  <Typography
+                    variant="h6"
+                    fontWeight="bold"
+                    fontSize="1.10rem"
+                    gutterBottom
+                  >
+                    {`${idx + 1} ನೇ ನಗದು ಮತ್ತು ವಿವರ`}
+                  </Typography>
+                  <Grid container spacing={20}>
+                    <Grid item xs={12} sm={6} md={3}>
+                      <LabelValue label="ಮೊಬಲಾಗು" value={`₹ ${entry.payment}`} />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                      <LabelValue
+                        label="ಹಣ ಪಡೆದ ರೀತಿ"
+                        value={entry.paymentType || "—"}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                      <LabelValue
+                        label="ರಸೀದಿ ಸಂಖ್ಯೆ"
+                        value={entry.receipt || "—"}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                      <LabelValue
+                        label="ಪಾವತಿಸಿದ ದಿನಾಂಕ"
+                        value={entry.date || "—"}
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <LabelValue label="ಜಮಾ ವಿವರ" value={entry.deposit || "—"} />
+                  </Grid>
+                  <Divider sx={{ mt: 2, mb: 2 }} />
+                </Box>
+              ))
+            ) : (
+              <Typography>ಯಾವುದೇ ಪಾವತಿ ದಾಖಲೆ ಇಲ್ಲ</Typography>
+            )}
           </Box>
         </Box>
       </div>
 
-      <Box sx={{ p: 3, maxWidth: "1400px", marginLeft: "10px" }}>
-
-        {/* Top Card */}
-        <Box
-          sx={{
-            bgcolor: "white",
-            p: 1.5,
-            borderRadius: 1,
-            boxShadow: 1,
-            mb: 3,
-            position: "relative",
-          }}
-        >
-
-
-          {/* Details Grid */}
-          <Grid container spacing={20}>
-            <Grid item xs={12} sm={6} md={3}>
-              <LabelValue label="ಸದಸ್ಯ ಸಂಖ್ಯೆ" value={data.formData?.memberNo || "—"} />
-              <LabelValue label="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ" value={data.formData?.mobile || "—"} />
-              <LabelValue label="Email" value={data.formData?.email || "—"} />
-
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={3}>
-              <LabelValue label="ಸೇರಿದ ದಿನಾಂಕ" value={data.formData?.date || "—"} />
-              <LabelValue label="ಶ್ರೀಮತಿ / ಶ್ರೀ " value={data.formData?.name || "—"} />
-              <LabelValue label="ಜನನ ದಿನಾಂಕ" value={data.formData?.dob || "—"} />
-
-
-
-            </Grid>
-
-
-            <Grid item xs={12} sm={6} md={3}>
-              <LabelValue
-                label="ಸದಸ್ಯರ ನಮೂನೆ"
-                value={
-                  <Box
-                    component="span"
-                    sx={{
-                      backgroundColor: "#FF4A00",
-                      color: "#FFFFFF",
-                      px: 1,
-                      py: 0.5,
-                      borderRadius: "4px",
-                    }}
-                  >
-                    {data.membershipType}
-                  </Box>
-                }
-              />
-              <LabelValue label="Nick name" value={data.formData?.nickname || "—"} />
-              <LabelValue label="PAN No" value={data.formData?.pan || "—"} />
-
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={3}>
-              <LabelValue
-                label="ಸದಸ್ಯರ ಸ್ಥಿತಿ"
-                value={
-                  <Box
-                    component="span"
-                    sx={{
-                      backgroundColor: "#34C85A",
-                      color: "#FFFFFF",
-                      px: 1,
-                      py: 0.5,
-                      borderRadius: "4px",
-                    }}
-                  >
-                    {data.status}
-                  </Box>
-                }
-              />
-
-              <LabelValue label="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ  (ಬೇಕಾದಲ್ಲಿ)" value={data.formData?.altMobile || "—"} />
-              <LabelValue label="Aadhaar No." value={data.formData?.aadhaar || "—"} />
-
-            </Grid>
-          </Grid>
-          <Grid>
-            <LabelValue label="ವಿಳಾಸ" value={data.formData?.address || "—"} />
-          </Grid>
-        </Box>
-
-        {/* Payment Section */}
-        <Box
-          sx={{
-            bgcolor: "white",
-            p: 3,
-            borderRadius: 2,
-            boxShadow: 1,
-          }}
-        >
-          <Typography variant="h6" fontWeight="bold" gutterBottom>
-            ನಗದು ಮತ್ತು ವಿವರ
-          </Typography>
-
-          {data.entries && data.entries.length > 0 ? (
-            data.entries.map((entry, idx) => (
-              <Box key={idx} sx={{ mb: 3 }}>
-                {/* Render the header for each entry */}
-                <Typography variant="h6" fontWeight="bold" fontSize="1.10rem" gutterBottom>
-                  {`${idx + 1} ನೇ ನಗದು ಮತ್ತು ವಿವರ`}   {/* Or just “ನಗದು ಮತ್ತು ವಿವರ” */}
-                </Typography>
-                <Grid container spacing={20}>
-                  <Grid item xs={12} sm={6} md={3}>
-                    {/* <LabelValue label="ಯಜಮಾನರ ಹೆಸರು" value={entry.owner || "—"} /> */}
-                    <LabelValue label="ಮೊಬಲಾಗು" value={`₹ ${entry.payment}`} />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
-                    {/* <LabelValue label="ಸಹಾಯ ನೀಡಿದ ವ್ಯಕ್ತಿ" value={entry.helper || "—"} /> */}
-
-                    <LabelValue label="ಹಣ ಪಡೆದ ರೀತಿ" value={entry.paymentType || "—"} />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <LabelValue label="ರಸೀದಿ ಸಂಖ್ಯೆ" value={entry.receipt || "—"} />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <LabelValue label="ಪಾವತಿಸಿದ ದಿನಾಂಕ" value={data.formData?.date || "—"} />
-                  </Grid>
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <LabelValue label="ಜಮಾ ವಿವರ" value={entry.deposit || "—"} />
-                </Grid>
-
-
-                <Divider sx={{ mt: 2, mb: 2 }} />
-              </Box>
-            ))
-          ) : (
-            <Typography>ಯಾವುದೇ ಪಾವತಿ ದಾಖಲೆ ಇಲ್ಲ</Typography>
-          )}
-        </Box>
-      </Box>
+      {/* 🔹 Confirmation Dialog */}
+      <Dialog
+        open={openBackDialog}
+        onClose={() => setOpenBackDialog(false)}
+      >
+        <DialogTitle>ನೀವು ನಿರ್ಗಮಿಸಲು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?</DialogTitle>
+        <DialogContent>
+          ನೀವು ನಿರ್ಗಮಿಸಲು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ? ಹೌದು ಎಂದಾದರೆ, ಅದು ಉಳಿಸಲಾಗುವುದಿಲ್ಲ.
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setOpenBackDialog(false);
+              navigate(-1); // go back
+            }}
+            color="error"
+          >
+            ಈ ಪುಟದಿಂದ ನಿರ್ಗಮಿಸಿ
+          </Button>
+          <Button
+            onClick={() => setOpenBackDialog(false)}
+            color="primary"
+          >
+            ಈ ಪುಟದಲ್ಲಿ ಇರಿ
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
 
-// Reusable component for Label and Value
 const LabelValue = ({ label, value }) => (
   <Box sx={{ mb: 1 }}>
     <Typography variant="caption" color="text.secondary" fontWeight={600}>

@@ -34,18 +34,24 @@ function Management() {
             </div>
 
 
-            {/* Back Button */}
-        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-          <ArrowBackIcon sx={{ mr: 1, cursor: "pointer" }} onClick={handleBack} />
-          <Typography variant="body1" sx={{ cursor: "pointer" }} onClick={handleBack}>
-            Back
-          </Typography>
-        </Box>
+     <div className="mains">   
+     <Box sx={{ p: 3 }}>
+    {/* Back Button */}
+    <Box
+      sx={{ display: "flex", alignItems: "center", mb: 2, cursor: "pointer" }}
+      onClick={handleBack}
+    >
+      <Typography variant="body1" sx={{ fontSize: "20px", fontWeight: 500 }}>
+        &lt;&nbsp;&nbsp; Back
+      </Typography>
+    </Box>
+
+   </Box>
 
             
 
             {/* Main Home Page */}
-            <div className="mains">
+            
                 <div className="layers">
                     <div className="texts1" style={{ cursor: 'pointer' }} onClick={() => navigate('/Expenditure')}>
                         {/* Navigate to Members */}

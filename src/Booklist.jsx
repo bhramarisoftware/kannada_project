@@ -146,13 +146,7 @@ const [loading, setLoading] = useState(true);
       flex: 1,
       renderCell: (params) => (
         <>
-          <IconButton
-            color="primary"
-            size="small"
-            onClick={() => handleEdit(params.row.id)}
-          >
-            <EditIcon />
-          </IconButton>
+          
           <IconButton
             color="error"
             size="small"
@@ -173,7 +167,7 @@ const [loading, setLoading] = useState(true);
       row.customer.includes(search);
 
     const matchFilter =
-      filter === "all" ? true : filter === "cash" ? row.mode === "ನಗದು" : row.mode.includes("ಬ್ಯಾಂಕ್");
+      filter === "all" ? true : filter === "cash" ? row.mode === "ನಗದು" : row.mode.includes("Cheque");
 
     const matchDate =
       (!dateFrom || new Date(row.date) >= new Date(dateFrom)) &&
@@ -201,10 +195,13 @@ const [loading, setLoading] = useState(true);
       </div>
 
       {/* Controls */}
-      <Grid container spacing={2} alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+      <div style={{backgroundColor: "#f5f5f5"}}>
+      <Grid container spacing={2} alignItems="center" justifyContent="space-between" sx={{ mb: 2 }} style={{backgroundColor:"#f5f5f5", paddingTop:"1%", paddingBottom:"1%"}}>
         <Grid item>
-          <Button style={{marginLeft:23}} color="black" onClick={() => navigate(-1)}>  {/* ✅ Back works now */}
-            ← Back
+          <Button style={{marginLeft:23}} color="black" onClick={() => navigate(-1)}>  {/*  Back works now */}
+              <Typography variant="body1" sx={{ fontSize: "17px", fontWeight: 500 }}>
+                   &lt;&nbsp;&nbsp; Back
+                 </Typography>
           </Button>
         </Grid>
 
@@ -215,8 +212,17 @@ const [loading, setLoading] = useState(true);
         </Grid>
       </Grid>
 
-      <Box sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%', marginBottom: 2 }}>
+        <Box
+                          sx={{
+                              border: "2px solid #eae7e7ff",
+                              borderRadius: 2,
+                              p: 2,
+                              mb: 2,
+                          
+                              backgroundColor: "#ffffff",
+                          }}
+                      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '99%', marginBottom: 2 }}>
           {/* Header */}
           <div>
             <strong>ಪುಸ್ತಕ ಮಾರಾಟ ಪಟ್ಟಿ</strong>
@@ -244,7 +250,7 @@ const [loading, setLoading] = useState(true);
           >
             <MenuItem value="all">ಎಲ್ಲಾ</MenuItem>
             <MenuItem value="cash">ನಗದು</MenuItem>
-            <MenuItem value="bank">ಬ್ಯಾಂಕ್</MenuItem>
+            <MenuItem value="cheque">Cheque</MenuItem>
           </TextField>
           <TextField
             type="date"
@@ -263,7 +269,7 @@ const [loading, setLoading] = useState(true);
         </Box>
 
         {/* DataGrid Table */}
-        <Box sx={{ height: 400, width: "100%" }}>
+        <Box sx={{ height: 400, width: "99%" }}>
           <DataGrid
             rows={filteredRows}
             columns={columns}
@@ -274,6 +280,7 @@ const [loading, setLoading] = useState(true);
           />
         </Box>
       </Box>
+      </div>
       </>
       );
 }
