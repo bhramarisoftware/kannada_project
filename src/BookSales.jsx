@@ -200,7 +200,7 @@ export default function KannadaPage() {
     const totalAmount = rows.reduce((acc, row) => acc + row.total, 0);
     const totalWithExtra = totalAmount + Number(extraPrice || 0);
     const finalPayable = totalWithExtra - Number(paymentAmount || 0);
-    const remainingAmount = totalAmount - Number(receivedAmount || 0);
+    const remainingAmount = finalPayable - Number(receivedAmount || 0);
 
     return (
         <>
@@ -702,7 +702,7 @@ export default function KannadaPage() {
                         </Dialog>
                         <TextField
                             label="ಪಾವತಿಸಲು ಬಾಕಿ ಇರುವ ಮೊತ್ತ"
-                            value={finalPayable > 0 ? `₹ ${remainingAmount}` : "₹ 0"}
+                            value={remainingAmount}
                             InputProps={{ readOnly: true }}
                             style={{ marginTop: 20 }}
                         />
