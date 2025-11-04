@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataGrid } from "@mui/x-data-grid";
 import {
@@ -10,60 +10,99 @@ import {
   IconButton,
   Select,
   MenuItem,
+
+  
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { Margin } from "@mui/icons-material";
 
+
+
+
 function SalesTable() {
   const navigate = useNavigate();
-  // Sample data
-  const [rows, setRows] = useState([
-    {
-      id: 1,
-      receiptNo: 2518,
-      date: "00-Jan-0000",
-      count: 1,
-      amount: "₹ 500.00",
-      mode: "ನಗದು",
-      customer: "ಹೆಸರು",
-    },
-    {
-      id: 2,
-      receiptNo: 2519,
-      date: "00-Jan-0000",
-      count: 5,
-      amount: "₹ 500.00",
-      mode: "ಕರ್ನಾಟಕ ಬ್ಯಾಂಕ್ - 5754",
-      customer: "ಹೆಸರು",
-    },
-    {
-      id: 3,
-      receiptNo: 2520,
-      date: "00-Jan-0000",
-      count: 6,
-      amount: "₹ 500.00",
-      mode: "ನಗದು",
-      customer: "ಹೆಸರು",
-    },
-  ]);
-
-  const [search, setSearch] = useState("");
+  const [rows, setRows] = useState([]);
+const [loading, setLoading] = useState(true);
+ const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
-  // Delete row
-  const handleDelete = (id) => {
-    if (window.confirm("ನೀವು ಈ ಸಾಲನ್ನು ಅಳಿಸಲು ಬಯಸುವಿರಾ?")) {
-      setRows(rows.filter((row) => row.id !== id));
+ useEffect(() => {
+  const fetchSales = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/sales");
+      if (!res.ok) throw new Error("Failed to fetch sales");
+      const data = await res.json();
+      setRows(
+        data.map((row) => ({
+          ...row,
+          receiptNo: row.receiptNumber,
+          count: row.items.length,
+          amount: row.totalAmount,
+          mode: row.mode,
+          customer: row.name,
+        }))
+      );
+    } catch (err) {
+      console.error("Error fetching sales:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Edit row
-  const handleEdit = (id) => {
-    alert(`Edit row with ID: ${id}`);
-  };
+  fetchSales();
+}, []);
+ 
+
+  // Delete row
+  const handleDelete = async (id) => {
+  if (!window.confirm("ನೀವು ಈ ಸಾಲನ್ನು ಅಳಿಸಲು ಬಯಸುವಿರಾ?")) return;
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/sales/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!res.ok) throw new Error("Failed to delete sale");
+
+    // Remove from frontend state
+    setRows(rows.filter((row) => row.id !== id));
+    alert("Sale deleted successfully!");
+  } catch (err) {
+    console.error("Error deleting sale:", err);
+    alert("Failed to delete sale");
+  }
+};
+
+
+  const handleEdit = async (id) => {
+  const newCustomerName = prompt("Enter new customer name:");
+  if (!newCustomerName) return;
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/sales/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newCustomerName }),
+    });
+
+    if (!res.ok) throw new Error("Failed to update sale");
+
+    const updatedSale = await res.json();
+    setRows(
+      rows.map((row) =>
+        row.id === id ? { ...row, customer: updatedSale.name } : row
+      )
+    );
+    alert("Sale updated successfully!");
+  } catch (err) {
+    console.error("Error updating sale:", err);
+    alert("Failed to update sale");
+  }
+};
+
 
   // Add new row
   const handleAdd = () => {
@@ -95,11 +134,11 @@ function SalesTable() {
 
   // Columns
   const columns = [
-    { field: "receiptNo", headerName: "ರಸೀತಿ ಸಂಖ್ಯೆ", flex: 1 },
-    { field: "date", headerName: "ಮಿತ್ತೂರಾದ ದಿನಾಂಕ", flex: 1 },
-    { field: "count", headerName: "ಒಟ್ಟು ಪ್ರಮಾಣಗಳು", flex: 1 },
-    { field: "amount", headerName: "ಮೊತ್ತ", flex: 1 },
-    { field: "mode", headerName: "ಪಾವತಿ ರೀತಿ", flex: 1 },
+    { field: "receiptNo", headerName: "ರಶೀದಿ ಸಂಖ್ಯೆ", flex: 1 },
+    { field: "date", headerName: "ಮಾರಾಟವಾದ ದಿನಾಂಕ", flex: 1 },
+    { field: "count", headerName: "ಒಟ್ಟು ಪುಸ್ತಕಗಳು", flex: 1 },
+    { field: "amount", headerName: "ಮಾರಾಟವಾದ ಮೊತ್ತ", flex: 1 },
+    { field: "mode", headerName: "ವಹಿವಾಟು ರೀತಿ", flex: 1 },
     { field: "customer", headerName: "ಗ್ರಾಹಕರ ಹೆಸರು", flex: 1 },
     {
       field: "actions",
@@ -107,13 +146,7 @@ function SalesTable() {
       flex: 1,
       renderCell: (params) => (
         <>
-          <IconButton
-            color="primary"
-            size="small"
-            onClick={() => handleEdit(params.row.id)}
-          >
-            <EditIcon />
-          </IconButton>
+          
           <IconButton
             color="error"
             size="small"
@@ -134,7 +167,7 @@ function SalesTable() {
       row.customer.includes(search);
 
     const matchFilter =
-      filter === "all" ? true : filter === "cash" ? row.mode === "ನಗದು" : row.mode.includes("ಬ್ಯಾಂಕ್");
+      filter === "all" ? true : filter === "cash" ? row.mode === "ನಗದು" : row.mode.includes("Cheque");
 
     const matchDate =
       (!dateFrom || new Date(row.date) >= new Date(dateFrom)) &&
@@ -162,10 +195,13 @@ function SalesTable() {
       </div>
 
       {/* Controls */}
-      <Grid container spacing={2} alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+      <div style={{backgroundColor: "#f5f5f5"}}>
+      <Grid container spacing={2} alignItems="center" justifyContent="space-between" sx={{ mb: 2 }} style={{backgroundColor:"#f5f5f5", paddingTop:"1%", paddingBottom:"1%"}}>
         <Grid item>
-          <Button style={{marginLeft:23}} color="black" onClick={() => navigate(-1)}>  {/* ✅ Back works now */}
-            ← Back
+          <Button style={{marginLeft:23}} color="black" onClick={() => navigate(-1)}>  {/*  Back works now */}
+              <Typography variant="body1" sx={{ fontSize: "17px", fontWeight: 500 }}>
+                   &lt;&nbsp;&nbsp; Back
+                 </Typography>
           </Button>
         </Grid>
 
@@ -176,8 +212,17 @@ function SalesTable() {
         </Grid>
       </Grid>
 
-      <Box sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%', marginBottom: 2 }}>
+        <Box
+                          sx={{
+                              border: "2px solid #eae7e7ff",
+                              borderRadius: 2,
+                              p: 2,
+                              mb: 2,
+                          
+                              backgroundColor: "#ffffff",
+                          }}
+                      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '99%', marginBottom: 2 }}>
           {/* Header */}
           <div>
             <strong>ಪುಸ್ತಕ ಮಾರಾಟ ಪಟ್ಟಿ</strong>
@@ -205,7 +250,7 @@ function SalesTable() {
           >
             <MenuItem value="all">ಎಲ್ಲಾ</MenuItem>
             <MenuItem value="cash">ನಗದು</MenuItem>
-            <MenuItem value="bank">ಬ್ಯಾಂಕ್</MenuItem>
+            <MenuItem value="cheque">Cheque</MenuItem>
           </TextField>
           <TextField
             type="date"
@@ -224,7 +269,7 @@ function SalesTable() {
         </Box>
 
         {/* DataGrid Table */}
-        <Box sx={{ height: 400, width: "100%" }}>
+        <Box sx={{ height: 400, width: "99%" }}>
           <DataGrid
             rows={filteredRows}
             columns={columns}
@@ -235,6 +280,7 @@ function SalesTable() {
           />
         </Box>
       </Box>
+      </div>
       </>
       );
 }

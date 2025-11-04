@@ -40,47 +40,47 @@ function HomePage() {
         <div className="layer">
           <div className="text1">
             {/* Navigate to Members */}
-            <Link to="/MemberDetails">
+            <Link to="/MemberDetails" style={{ textDecoration: "none", color: "black" }}>
               <img src="./Layer_1.png" alt="MemberDetails" />
-              <p style={{ color: "black" }}>ಸದಸ್ಯರು</p>
+              <p>ಸದಸ್ಯರು</p>
             </Link>
           </div>
 
           <div className="text2">
-            <Link to="/DonationTable">
+            <Link to="/DonationTable" style={{ textDecoration: "none", color: "black" }}>
               <img
                 src="./Layer_2.png"
                 alt="help"
               />
-              <p style={{ color: "black" }}>ಸಹಾಯ ಧನ</p>
+              <p>ಸಹಾಯ ಧನ</p>
             </Link>
           </div>
 
           <div className="text3">
-            <Link to="/Booklist">
+            <Link to="/Booklist" style={{ textDecoration: "none", color: "black" }}>
               <img src="./Layer_3.png" alt="book" />
-              <p style={{ color: "black" }}>ಪುಸ್ತಕ ಮಾರಾಟ</p>
+              <p>ಪುಸ್ತಕ ಮಾರಾಟ</p>
             </Link>
           </div>
         </div>
 
         <div className="layer1">
           <div className="text4">
-            <Link to="/FullDetails">
+            <Link to="/FullDetails" style={{ textDecoration: "none", color: "black" }}>
               <img
                 src="./Layer_4.png"
                 alt="report"
               />
-              <p style={{ color: "black" }}>ಪೂರ್ಣವರದಿ</p>
+              <p>ಪೂರ್ಣವರದಿ</p>
             </Link>
           </div>
           <div className="text5">
-            <Link to="/Management">
+            <Link to="/Management" style={{ textDecoration: "none", color: "black" }}>
               <img
                 src="./Layer_5.png"
                 alt="settings"
               />
-              <p style={{ color: "black" }}>ನಿರ್ವಹಣೆ</p>
+              <p>ನಿರ್ವಹಣೆ</p>
             </Link>
           </div>
         </div>
@@ -109,6 +109,8 @@ function App() {
         <Route path="/StoreManager" element={<StoreManager />} />
         <Route path="/Treasure" element={<Treasure />} />
         <Route path="/Expenditure" element={<Expenditure />} />
+        <Route path="/MemberDetails" element={<MemberDetails />} />
+        <Route path="/MemberFullDetails/:id" element={<MemberFullDetails />} />
 
 
       </Routes>

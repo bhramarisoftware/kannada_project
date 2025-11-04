@@ -1,6 +1,4 @@
-/* MemberDetails.css */
 
-/* Main container */
 .member-details-container {
   max-width: 900px;
   margin: 40px auto;
@@ -11,7 +9,7 @@
   font-family: Arial, sans-serif;
 }
 
-/* Headings */
+
 .member-details-heading {
   font-size: 28px;
   font-weight: bold;
@@ -28,7 +26,7 @@
   color: #333;
 }
 
-/* Tables */
+
 .member-info-table,
 .member-payments-table {
   width: 100%;
@@ -50,21 +48,21 @@
   width: 30%;
 }
 
-/* Payments table header */
+
 .member-payments-table th {
   background-color: #4a90e2;
   color: white;
   text-align: center;
 }
 
-/* No payments row */
+
 .member-no-payments {
   text-align: center;
   font-style: italic;
   color: #999;
 }
 
-/* Back button */
+
 .member-details-back-btn {
   display: block;
   margin: 20px auto 0 auto;
@@ -81,11 +79,8 @@
 .member-details-back-btn:hover {
   background-color: #357ab8;
 }
-/* ===========================
-   MemberDetails Page Styling
-   =========================== */
 
-/* Wrapper */
+
 .members-details-wrapper {
   padding: 20px;
   background: #f9fafb;
@@ -93,7 +88,7 @@
   font-family: "Noto Sans Kannada", sans-serif;
 }
 
-/* Card */
+
 .members-details-card {
   background: #fff;
   padding: 20px;
@@ -110,7 +105,7 @@
   text-align: center;
 }
 
-/* Table */
+
 .members-details-table {
   width: 100%;
   border-collapse: collapse;
@@ -139,7 +134,7 @@
   background: #f1f5f9;
 }
 
-/* Payment list inside table */
+
 .payment-list {
   margin: 0;
   padding-left: 16px;
@@ -153,7 +148,7 @@
   font-size: 13px;
 }
 
-/* Buttons */
+
 .edit-btn,
 .delete-btn {
   padding: 6px 12px;
@@ -166,7 +161,7 @@
   transition: 0.2s ease;
 }
 
-/* Edit button */
+
 .edit-btn {
   background: #2563eb;
   color: #fff;
@@ -175,7 +170,7 @@
   background: #1d4ed8;
 }
 
-/* Delete button */
+
 .delete-btn {
   background: none;
   color: #ff0000;
